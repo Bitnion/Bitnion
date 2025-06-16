@@ -2,41 +2,26 @@ name: Verify Bitnion Commits
 
 on:
   push:
-    branches: [ "main", "master" ]
+    branches: [main]
   pull_request:
-    branches: [ "main", "master" ]
+    branches: [main]
 
 jobs:
   verify-commits:
+    name: GPG Commit Verification
     runs-on: ubuntu-latest
-    name: 🔐 Verify Git Commits
-    steps:
 
-    - name: 📥 Checkout Repository
+    steps:
+    - name: Checkout repository
       uses: actions/checkout@v3
       with:
-        fetch-depth: 0  # Required to access full commit history
+        fetch-depth: 0  # Important: needed to access full commit history
 
-    - name: ⚙️ Setup Python
-      uses: actions/setup-python@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
       with:
         python-version: '3.x'
 
-    - name: 🛠 Install GPG
+    - name: Run verify-commits.py
       run: |
-        sudo apt-get update
-        sudo apt-get install -y gnupg
-
-    - name: 🔐 Import Bitnion Trusted GPG Key
-      run: |
-        gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 63E1C0407141D3AF60CDFB07BEA8E583D709325A
-        echo "Setting trust level for key..."
-        echo -e "5\ny\n" | gpg --command-fd 0 --edit-key 63E1C0407141D3AF60CDFB07BEA8E583D709325A trust
-
-    - name: 🧾 Set Permissions
-      run: chmod +x ./contrib/verify-commits/verify-commits.py
-
-    - name: ✅ Verify All Commits
-      run: |
-        ROOT_HASH=$(grep trusted_git_root ./contrib/verify-commits/trusted-git-root | cut -d= -f2)
-        ./contrib/verify-commits/verify-commits.py "$ROOT_HASH" HEAD
+        python3 contrib/verify-commits/verify-commits.py $(grep trusted_git_root contrib/verify-commits/trusted-git-root | head -n1 | cut -d= -f2) HEAD
