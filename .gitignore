@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 *.tar.gz
 
 *.exe
@@ -148,3 +149,37 @@ db4/
 osx_volname
 dist/
 *.background.tiff
+=======
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+>>>>>>> 8adb4a0ff307c96fc122d2f27e3b5f638bdd5100

@@ -1,13 +1,20 @@
+<<<<<<< HEAD
 # Bitnion (BNO) – A Fair and Foundational Cryptocurrency
 
 [![MIT License](https://img.shields.io/badge/license-MIT-green.svg)](https://opensource.org/licenses/MIT)
 ![Status](https://img.shields.io/badge/status-active-brightgreen)
 [![Verified Commits](https://img.shields.io/badge/commits-verified-brightgreen?logo=github)](https://github.com/bitnion/bitnion/commits/main)
+=======
+# Bitnion (BNO)
+
+A fair and foundational cryptocurrency built upon the proven architecture of Bitcoin Core.
+>>>>>>> 8adb4a0ff307c96fc122d2f27e3b5f638bdd5100
 
 ---
 
 ## 🪙 What is Bitnion?
 
+<<<<<<< HEAD
 **Bitnion (BNO)** is a Bitcoin-based, community-driven cryptocurrency built with the goal of fairness, transparency, and long-term sustainability.
 
 Bitnion maintains technical quality on par with Bitcoin Core (90–98%) and introduces responsible, inclusive distribution without commercial intent.
@@ -63,11 +70,51 @@ Summary:
 
 - If Bitnion is one day listed by major exchanges, the team will remain neutral and supportive.
 - If the community (holders, miners, supporters) pushes for a listing, the team will support those initiatives transparently.
+=======
+**Bitnion (BNO)** is an open-source, community-focused cryptocurrency project designed for fairness, simplicity, and long-term sustainability. It follows the decentralized philosophy of Bitcoin but introduces an ethical and transparent launch process, without ICOs or venture funding.
+
+---
+
+## 🔍 Key Highlights
+
+- Based on Bitcoin Core 0.21+ codebase
+- Maximum supply: **15,000,000 BNO**
+- Premine: **1,000,000 BNO** (transparent, ethical distribution)
+- Block time: **10 minutes**
+- Halving: every 205,000 blocks (~4 years)
+- Written in **C++**, with deterministic builds and MIT license
+
+---
+
+## 📦 Repository Structure
+
+
+src/ # Core source code (C++)
+doc/ # Documentation
+contrib/ # Tools and scripts (hooks, verify-commits, seed generators)
+test/ # Unit and functional tests
+README.md # Project overview
+LICENSE # MIT License
+
+
+---
+
+## 📜 License
+
+This project is licensed under the [MIT License](LICENSE).
+
+MIT © 2025 Bitnion Core Team
+
+
+---
+
+>>>>>>> 8adb4a0ff307c96fc122d2f27e3b5f638bdd5100
 
 ---
 
 ## 📧 Contact
 
+<<<<<<< HEAD
 - Email: **bitnion@gmail.com**
 - Twitter/X (planned)
 - Telegram/Discord (planned)
@@ -101,3 +148,9 @@ Participation is voluntary.
 ## 🖼️ Bitnion Logo
 
 ![Bitnion Logo](assets/logos/Bitnion_BNO.png)
+=======
+- Email: [bitnionproject@gmail.com](mailto:bitnionproject@gmail.com)
+- GitHub: [github.com/bitnion/bitnion](https://github.com/bitnion/bitnion)
+
+> Contributions are welcome. Please open issues or pull requests.
+>>>>>>> 8adb4a0ff307c96fc122d2f27e3b5f638bdd5100
