@@ -1,5 +1,9 @@
 # Bitnion (BNO) – A Fair and Foundational Cryptocurrency
 
+[![MIT License](https://img.shields.io/badge/license-MIT-green.svg)](https://opensource.org/licenses/MIT)
+![Status](https://img.shields.io/badge/status-active-brightgreen)
+[![Verified Commits](https://img.shields.io/badge/commits-verified-brightgreen?logo=github)](https://github.com/bitnion/bitnion/commits/main)
+
 ---
 
 ## 🪙 What is Bitnion?
