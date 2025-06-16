@@ -1,53 +1,50 @@
 #!/usr/bin/env bash
 #
-# Copyright (c) 2018-2020 The Bitcoin Core developers
-# Distributed under the MIT software license, see the accompanying
-# file COPYING or http://www.opensource.org/licenses/mit-license.php.
+# Bitnion (BNO) – Pre-Script Runtime Environment Setup
+#
+# This script runs before any build/test script during CI execution.
+# It prepares and validates the runtime environment, exports relevant variables,
+# and confirms tool availability for compiling and linking Bitnion Core.
+#
+# This version is adapted from the Bitcoin Core suite and customized
+# for the Bitnion project and directory structure.
+#
 
-export LC_ALL=C.UTF-8
+set -euo pipefail
+export LC_ALL=C
 
-# Make sure default datadir does not exist and is never read by creating a dummy file
-if [ "$CI_OS_NAME" == "macos" ]; then
-  echo > $HOME/Library/Application\ Support/Bitcoin
-else
-  DOCKER_EXEC echo \> \$HOME/.bitcoin
+echo "⚙️ Preparing Bitnion runtime environment (before_script)..."
+
+# Confirm system architecture and host
+echo "System Architecture: $(uname -m)"
+echo "Operating System:    $(uname -s)"
+echo "Bitnion User:        $(whoami)"
+echo "Working Directory:   $(pwd)"
+
+# Define and export environment variables if not already set
+export BITNION_ROOT_DIR="${BITNION_ROOT_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")"/../../.. && pwd)}"
+export HOST="${HOST:-x86_64-unknown-linux-gnu}"
+export DEPENDS_DIR="${DEPENDS_DIR:-${BITNION_ROOT_DIR}/depends/${HOST}}"
+export PATH="${DEPENDS_DIR}/bin:${PATH}"
+
+# Display Git info for debug (optional)
+if command -v git >/dev/null 2>&1; then
+  echo "Git Commit: $(git -C "${BITNION_ROOT_DIR}" rev-parse --short HEAD || echo unknown)"
 fi
 
-DOCKER_EXEC mkdir -p ${DEPENDS_DIR}/SDKs ${DEPENDS_DIR}/sdk-sources
+# Show available compiler versions
+echo "Compiler Version (CC): $(${CC:-gcc} --version | head -n1)"
+echo "Compiler Version (CXX): $(${CXX:-g++} --version | head -n1)"
 
-OSX_SDK_BASENAME="Xcode-${XCODE_VERSION}-${XCODE_BUILD_ID}-extracted-SDK-with-libcxx-headers.tar.gz"
-OSX_SDK_PATH="${DEPENDS_DIR}/sdk-sources/${OSX_SDK_BASENAME}"
-
-if [ -n "$XCODE_VERSION" ] && [ ! -f "$OSX_SDK_PATH" ]; then
-  curl --location --fail "${SDK_URL}/${OSX_SDK_BASENAME}" -o "$OSX_SDK_PATH"
-fi
-
-if [[ ${USE_MEMORY_SANITIZER} == "true" ]]; then
-  # Use BDB compiled using install_db4.sh script to work around linking issue when using BDB
-  # from depends. See https://github.com/bitcoin/bitcoin/pull/18288#discussion_r433189350 for
-  # details.
-  DOCKER_EXEC "contrib/install_db4.sh \$(pwd) --enable-umrw CC=clang CXX=clang++ CFLAGS='${MSAN_FLAGS}' CXXFLAGS='${MSAN_AND_LIBCXX_FLAGS}'"
+# Verify Bitnion autogen/configure files
+if [[ ! -x "${BITNION_ROOT_DIR}/autogen.sh" ]]; then
+  echo "❌ Missing autogen.sh in ${BITNION_ROOT_DIR}"
+  exit 1
 fi
 
-if [ -n "$XCODE_VERSION" ] && [ -f "$OSX_SDK_PATH" ]; then
-  DOCKER_EXEC tar -C "${DEPENDS_DIR}/SDKs" -xf "$OSX_SDK_PATH"
+if [[ ! -f "${BITNION_ROOT_DIR}/configure.ac" ]]; then
+  echo "❌ Missing configure.ac in ${BITNION_ROOT_DIR}"
+  exit 1
 fi
-if [[ $HOST = *-mingw32 ]]; then
-  DOCKER_EXEC update-alternatives --set $HOST-g++ \$\(which $HOST-g++-posix\)
-fi
-if [ -z "$NO_DEPENDS" ]; then
-  if [[ $DOCKER_NAME_TAG == centos* ]]; then
-    # CentOS has problems building the depends if the config shell is not explicitly set
-    # (i.e. for libevent a Makefile with an empty SHELL variable is generated, leading to
-    #  an error as the first command is executed)
-    SHELL_OPTS="CONFIG_SHELL=/bin/bash"
-  else
-    SHELL_OPTS="CONFIG_SHELL="
-  fi
-  DOCKER_EXEC $SHELL_OPTS make $MAKEJOBS -C depends HOST=$HOST $DEP_OPTS
-fi
-if [ -n "$PREVIOUS_RELEASES_TO_DOWNLOAD" ]; then
-  BEGIN_FOLD previous-versions
-  DOCKER_EXEC test/get_previous_releases.py -b -t "$PREVIOUS_RELEASES_DIR" "${PREVIOUS_RELEASES_TO_DOWNLOAD}"
-  END_FOLD
-fi
+
+echo "✅ Bitnion environment initialized. Ready to execute build scripts."

@@ -1,22 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\common.init.vcxproj" />
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{BB493552-3B8C-4A8C-BF69-A6E7A51D2EA6}</ProjectGuid>
+    <ProjectGuid>{A1B2C3D4-E5F6-7890-1234-56789ABCDEF1}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>libsecp256k1</RootNamespace>
   </PropertyGroup>
-  <PropertyGroup Label="Configuration">
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="$(Configuration)|$(Platform)==Release|x64" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ItemGroup>
     <ClCompile Include="..\..\src\secp256k1\src\secp256k1.c" />
   </ItemGroup>
-    <ItemDefinitionGroup>
-    <ClCompile>
-      <PreprocessorDefinitions>ENABLE_MODULE_ECDH;ENABLE_MODULE_RECOVERY;ENABLE_MODULE_EXTRAKEYS;ENABLE_MODULE_SCHNORRSIG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-       <AdditionalIncludeDirectories>..\..\src\secp256k1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-     </ClCompile>
-  </ItemDefinitionGroup>
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ItemGroup>
+    <ClInclude Include="..\..\src\secp256k1\include\secp256k1.h" />
+    <ClInclude Include="..\..\src\secp256k1\src\secp256k1.c" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <Import Project="..\common.vcxproj" />
 </Project>

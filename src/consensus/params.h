@@ -1,96 +1,76 @@
-// Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2019 The Bitcoin Core developers
-// Distributed under the MIT software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+// =============================================================================
+// Bitnion (BNO) – A Fair and Foundational Cryptocurrency
+//
+// ▪ Name:         Bitnion
+// ▪ Symbol:       BNO
+// ▪ Smallest Unit: nion (1 BNO = 100,000,000 nion)
+// ▪ Max Supply:   15,000,000 BNO
+// ▪ Premine:      1,000,000 BNO allocated in genesis block
+// ▪ Launch Year:  2025
+// ▪ Final Mining: Estimated around the year 2137
+// ▪ Halving:      Every 205,000 blocks
+// ▪ Developer:    The Bitnion Core Team
+// ▪ Network ID:   "bitnion"
+//
+// Contact: bitnion@gmail.com
+// =============================================================================
 
-#ifndef BITCOIN_CONSENSUS_PARAMS_H
-#define BITCOIN_CONSENSUS_PARAMS_H
+#ifndef BITNION_CONSENSUS_PARAMS_H
+#define BITNION_CONSENSUS_PARAMS_H
 
 #include <uint256.h>
 #include <limits>
+#include <string>
 
 namespace Consensus {
 
-enum DeploymentPos
-{
-    DEPLOYMENT_TESTDUMMY,
-    DEPLOYMENT_TAPROOT, // Deployment of Schnorr/Taproot (BIPs 340-342)
-    // NOTE: Also add new deployments to VersionBitsDeploymentInfo in versionbits.cpp
-    MAX_VERSION_BITS_DEPLOYMENTS
-};
-
-/**
- * Struct for each individual consensus rule change using BIP9.
- */
-struct BIP9Deployment {
-    /** Bit position to select the particular bit in nVersion. */
-    int bit;
-    /** Start MedianTime for version bits miner confirmation. Can be a date in the past */
-    int64_t nStartTime;
-    /** Timeout/expiry MedianTime for the deployment attempt. */
-    int64_t nTimeout;
-
-    /** Constant for nTimeout very far in the future. */
-    static constexpr int64_t NO_TIMEOUT = std::numeric_limits<int64_t>::max();
-
-    /** Special value for nStartTime indicating that the deployment is always active.
-     *  This is useful for testing, as it means tests don't need to deal with the activation
-     *  process (which takes at least 3 BIP9 intervals). Only tests that specifically test the
-     *  behaviour during activation cannot use this. */
-    static constexpr int64_t ALWAYS_ACTIVE = -1;
-};
-
-/**
- * Parameters that influence chain consensus.
- */
-struct Params {
-    uint256 hashGenesisBlock;
-    int nSubsidyHalvingInterval;
-    /* Block hash that is excepted from BIP16 enforcement */
-    uint256 BIP16Exception;
-    /** Block height and hash at which BIP34 becomes active */
-    int BIP34Height;
-    uint256 BIP34Hash;
-    /** Block height at which BIP65 becomes active */
-    int BIP65Height;
-    /** Block height at which BIP66 becomes active */
-    int BIP66Height;
-    /** Block height at which CSV (BIP68, BIP112 and BIP113) becomes active */
-    int CSVHeight;
-    /** Block height at which Segwit (BIP141, BIP143 and BIP147) becomes active.
-     * Note that segwit v0 script rules are enforced on all blocks except the
-     * BIP 16 exception blocks. */
-    int SegwitHeight;
-    /** Don't warn about unknown BIP 9 activations below this height.
-     * This prevents us from warning about the CSV and segwit activations. */
-    int MinBIP9WarningHeight;
     /**
-     * Minimum blocks including miner confirmation of the total of 2016 blocks in a retargeting period,
-     * (nPowTargetTimespan / nPowTargetSpacing) which is also used for BIP9 deployments.
-     * Examples: 1916 for 95%, 1512 for testchains.
+     * Consensus rule configuration shared between all networks (main, testnet, regtest).
      */
-    uint32_t nRuleChangeActivationThreshold;
-    uint32_t nMinerConfirmationWindow;
-    BIP9Deployment vDeployments[MAX_VERSION_BITS_DEPLOYMENTS];
-    /** Proof of work parameters */
-    uint256 powLimit;
-    bool fPowAllowMinDifficultyBlocks;
-    bool fPowNoRetargeting;
-    int64_t nPowTargetSpacing;
-    int64_t nPowTargetTimespan;
-    int64_t DifficultyAdjustmentInterval() const { return nPowTargetTimespan / nPowTargetSpacing; }
-    /** The best chain should have at least this much work */
-    uint256 nMinimumChainWork;
-    /** By default assume that the signatures in ancestors of this block are valid */
-    uint256 defaultAssumeValid;
+    struct Params {
+        uint256 hashGenesisBlock;
+        int nSubsidyHalvingInterval;
+        int BIP34Height;
+        uint256 BIP34Hash;
+        int BIP65Height;
+        int BIP66Height;
+
+        uint32_t nPowTargetSpacing;
+        uint32_t nPowTargetTimespan;
+        bool fPowAllowMinDifficultyBlocks;
+        bool fPowNoRetargeting;
+
+        int nRuleChangeActivationThreshold;
+        int nMinerConfirmationWindow;
+
+        uint256 nMinimumChainWork;
+        uint256 defaultAssumeValid;
+
+        struct Deployment {
+            int bit;
+            int64_t nStartTime;
+            int64_t nTimeout;
+        };
+
+        enum DeploymentPos {
+            DEPLOYMENT_TESTDUMMY,
+            DEPLOYMENT_TAPROOT,
+            MAX_VERSION_BITS_DEPLOYMENTS
+        };
+
+        Deployment vDeployments[MAX_VERSION_BITS_DEPLOYMENTS];
+    };
 
     /**
-     * If true, witness commitments contain a payload equal to a Bitcoin Script solution
-     * to the signet challenge. See BIP325.
+     * Maximum supply: 15,000,000 BNO = 1.5 billion nion (1 BNO = 100,000,000 nion).
      */
-    bool signet_blocks{false};
-    std::vector<uint8_t> signet_challenge;
-};
+    static const CAmount MAX_MONEY = 15000000 * COIN;
+
+    /** The maximum amount of money in circulation (used for sanity checks). */
+    inline bool MoneyRange(const CAmount& nValue) {
+        return (nValue >= 0 && nValue <= MAX_MONEY);
+    }
+
 } // namespace Consensus
 
-#endif // BITCOIN_CONSENSUS_PARAMS_H
+#endif // BITNION_CONSENSUS_PARAMS_H

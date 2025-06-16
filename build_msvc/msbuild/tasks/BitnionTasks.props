@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- Bitnion Build Tasks Configuration -->
+
+  <PropertyGroup>
+    <BitnionBuildRoot>$(MSBuildThisFileDirectory)..\..\..</BitnionBuildRoot>
+    <BitnionSourceRoot>$(BitnionBuildRoot)\src</BitnionSourceRoot>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ClIncludeFiles Include="$(BitnionSourceRoot)\config\bitnion-config.h" />
+  </ItemGroup>
+
+</Project>

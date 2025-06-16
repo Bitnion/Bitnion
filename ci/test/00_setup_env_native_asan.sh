@@ -1,14 +1,30 @@
 #!/usr/bin/env bash
-#
-# Copyright (c) 2019-2020 The Bitcoin Core developers
-# Distributed under the MIT software license, see the accompanying
-# file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-export LC_ALL=C.UTF-8
+set -euxo pipefail
 
-export CONTAINER_NAME=ci_native_asan
-export PACKAGES="clang llvm python3-zmq qtbase5-dev qttools5-dev-tools libevent-dev bsdmainutils libboost-system-dev libboost-filesystem-dev libboost-test-dev libboost-thread-dev libdb5.3++-dev libminiupnpc-dev libzmq3-dev libqrencode-dev libsqlite3-dev"
-export DOCKER_NAME_TAG=ubuntu:20.04
-export NO_DEPENDS=1
-export GOAL="install"
-export BITCOIN_CONFIG="--enable-zmq --with-incompatible-bdb --with-gui=qt5 CPPFLAGS='-DARENA_DEBUG -DDEBUG_LOCKORDER' --with-sanitizers=address,integer,undefined CC=clang CXX=clang++ --with-boost-process"
+echo ">> Setting up native ASan environment for Bitnion..."
+
+# Install required packages if missing (Debian/Arch/CentOS-compatible)
+if command -v apt-get >/dev/null 2>&1; then
+  apt-get update && apt-get install -y clang lldb llvm
+elif command -v pacman >/dev/null 2>&1; then
+  pacman -Sy --noconfirm clang lldb llvm
+elif command -v yum >/dev/null 2>&1; then
+  yum install -y llvm llvm-devel clang
+fi
+
+# Set compiler flags for AddressSanitizer
+export CC=clang
+export CXX=clang++
+export CFLAGS="-fsanitize=address -fno-omit-frame-pointer"
+export CXXFLAGS="-fsanitize=address -fno-omit-frame-pointer"
+export LDFLAGS="-fsanitize=address"
+
+# Set configure options for Bitnion
+export CONFIGURE_FLAGS="--enable-debug --disable-asm --with-sanitizers=address"
+
+# Confirm compiler version and system info
+clang --version
+uname -a
+
+echo ">> Native ASan environment setup for Bitnion complete."

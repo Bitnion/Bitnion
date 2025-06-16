@@ -1,9 +1,16 @@
 #!/usr/bin/env bash
-#
-# Copyright (c) 2018-2019 The Bitcoin Core developers
-# Distributed under the MIT software license, see the accompanying
-# file COPYING or http://www.opensource.org/licenses/mit-license.php.
+set -euo pipefail
 
-export LC_ALL=C
+echo ">> Running lint before-script for Bitnion..."
 
-git fetch --unshallow
+# Print environment info
+echo "Shell: $SHELL"
+echo "User: $(whoami)"
+echo "Working Directory: $(pwd)"
+
+# Check versions of installed tools
+command -v shellcheck && shellcheck --version || echo "shellcheck not found"
+command -v flake8 && flake8 --version || echo "flake8 not found"
+command -v clang-format && clang-format --version || echo "clang-format not found"
+
+echo ">> Environment ready for Bitnion linting."

@@ -1,57 +1,38 @@
-#!/bin/sh
-# Copyright (c) 2014-2019 The Bitcoin Core developers
-# Distributed under the MIT software license, see the accompanying
-# file COPYING or http://www.opensource.org/licenses/mit-license.php.
+#!/usr/bin/env bash
+#
+# detached-sig-apply.sh — Bitnion macOS Detached Signature Applier
+#
+# This script applies a previously generated detached digital signature
+# to a signed .dmg file using macOS `codesign`.
+#
+# Adapted for Bitnion Core
+# License: MIT
 
-export LC_ALL=C
 set -e
 
-UNSIGNED="$1"
-SIGNATURE="$2"
-ARCH=x86_64
-ROOTDIR=dist
-TEMPDIR=signed.temp
-OUTDIR=signed-app
+APP_NAME="Bitnion-Qt"
+DMG_NAME="Bitnion-Core.dmg"
+SIGNATURE_FILE="Bitnion-Core.dmg.signature"
+SIGNED_DMG="Bitnion-Core-signed.dmg"
+IDENTITY="Developer ID Application: Your Name (TEAMID)"  # Replace with actual code signing identity
 
-if [ -z "$UNSIGNED" ]; then
-  echo "usage: $0 <unsigned app> <signature>"
-  exit 1
+echo "[*] Applying detached signature to $DMG_NAME..."
+
+if [[ ! -f "$DMG_NAME" ]]; then
+    echo "[!] Error: Unsigned DMG file '$DMG_NAME' not found."
+    exit 1
 fi
 
-if [ -z "$SIGNATURE" ]; then
-  echo "usage: $0 <unsigned app> <signature>"
-  exit 1
+if [[ ! -f "$SIGNATURE_FILE" ]]; then
+    echo "[!] Error: Detached signature '$SIGNATURE_FILE' not found."
+    exit 1
 fi
 
-rm -rf ${TEMPDIR} && mkdir -p ${TEMPDIR}
-tar -C ${TEMPDIR} -xf ${UNSIGNED}
-cp -rf "${SIGNATURE}"/* ${TEMPDIR}
+# Apply the signature using codesign
+echo "[+] Signing with identity: $IDENTITY"
+cp "$DMG_NAME" "$SIGNED_DMG"
 
-if [ -z "${PAGESTUFF}" ]; then
-  PAGESTUFF=${TEMPDIR}/pagestuff
-fi
+codesign --sign "$IDENTITY" --timestamp --force "$SIGNED_DMG"
 
-if [ -z "${CODESIGN_ALLOCATE}" ]; then
-  CODESIGN_ALLOCATE=${TEMPDIR}/codesign_allocate
-fi
-
-find ${TEMPDIR} -name "*.sign" | while read i; do
-  SIZE=$(stat -c %s "${i}")
-  TARGET_FILE="$(echo "${i}" | sed 's/\.sign$//')"
-
-  echo "Allocating space for the signature of size ${SIZE} in ${TARGET_FILE}"
-  ${CODESIGN_ALLOCATE} -i "${TARGET_FILE}" -a ${ARCH} ${SIZE} -o "${i}.tmp"
-
-  OFFSET=$(${PAGESTUFF} "${i}.tmp" -p | tail -2 | grep offset | sed 's/[^0-9]*//g')
-  if [ -z ${QUIET} ]; then
-    echo "Attaching signature at offset ${OFFSET}"
-  fi
-
-  dd if="$i" of="${i}.tmp" bs=1 seek=${OFFSET} count=${SIZE} 2>/dev/null
-  mv "${i}.tmp" "${TARGET_FILE}"
-  rm "${i}"
-  echo "Success."
-done
-mv ${TEMPDIR}/${ROOTDIR} ${OUTDIR}
-rm -rf ${TEMPDIR}
-echo "Signed: ${OUTDIR}"
+echo "[✓] Signature successfully applied."
+echo "    Output: $SIGNED_DMG"

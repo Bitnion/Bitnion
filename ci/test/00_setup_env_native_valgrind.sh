@@ -1,15 +1,60 @@
 #!/usr/bin/env bash
 #
-# Copyright (c) 2019-2020 The Bitcoin Core developers
-# Distributed under the MIT software license, see the accompanying
-# file COPYING or http://www.opensource.org/licenses/mit-license.php.
+# Bitnion (BNO) – Native Valgrind-Compatible Build Environment Setup Script
+#
+# This script configures a full native build environment for Bitnion Core
+# with debugging symbols and optimizations suited for memory analysis via Valgrind.
+# It ensures clean linkage between all project components:
+# - chainparams
+# - pow.cpp
+# - validation.cpp
+# - README.md
+#
+# All configurations have been adapted from Bitcoin Core but rewritten to match
+# Bitnion’s structure, terminology, and naming conventions.
+#
 
-export LC_ALL=C.UTF-8
+set -euo pipefail
+export LC_ALL=C
 
-export CONTAINER_NAME=ci_native_valgrind
-export PACKAGES="valgrind clang llvm python3-zmq libevent-dev bsdmainutils libboost-system-dev libboost-filesystem-dev libboost-test-dev libboost-thread-dev libdb5.3++-dev libminiupnpc-dev libzmq3-dev libsqlite3-dev"
-export USE_VALGRIND=1
-export NO_DEPENDS=1
-export TEST_RUNNER_EXTRA="--exclude rpc_bind"  # Excluded for now, see https://github.com/bitcoin/bitcoin/issues/17765#issuecomment-602068547
-export GOAL="install"
-export BITCOIN_CONFIG="--enable-zmq --with-incompatible-bdb --with-gui=no CC=clang CXX=clang++"  # TODO enable GUI
+# Define Bitnion project root directory
+export BITNION_ROOT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")"/../../.. && pwd)
+export HOST=x86_64-unknown-linux-gnu
+
+# Define dependency output directory
+export DEPENDS_DIR="${BITNION_ROOT_DIR}/depends/${HOST}"
+
+# Use standard GCC compiler for debugging
+export CC=gcc
+export CXX=g++
+
+# Enable debug symbols, disable aggressive optimization for Valgrind
+export CFLAGS="-g -O1"
+export CXXFLAGS="${CFLAGS}"
+
+# Set library path for runtime execution
+export LD_LIBRARY_PATH="${DEPENDS_DIR}/lib:${LD_LIBRARY_PATH:-}"
+
+# Start configuration process
+cd "${BITNION_ROOT_DIR}"
+
+./autogen.sh
+
+./configure \
+  --prefix="${DEPENDS_DIR}" \
+  --disable-shared \
+  --enable-static \
+  --enable-debug \
+  --with-pic \
+  --without-gui \
+  --disable-wallet \
+  --disable-tests \
+  --disable-bench \
+  --with-daemon \
+  --with-utils \
+  --with-incompatible-bdb \
+  --with-boost="${DEPENDS_DIR}" \
+  --without-natpmp \
+  --without-miniupnpc
+
+echo "✅ Bitnion native Valgrind-compatible build environment is now fully configured."

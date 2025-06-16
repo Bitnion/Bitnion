@@ -1,48 +1,54 @@
-Repository Tools
----------------------
+# Bitnion Core — contrib/
 
-### [Developer tools](/contrib/devtools) ###
-Specific tools for developers working on this repository.
-Additional tools, including the `github-merge.py` script, are available in the [maintainer-tools](https://github.com/bitcoin-core/bitcoin-maintainer-tools) repository.
+This directory contains various community-contributed tools, configuration files, test scripts, and utilities that support the Bitnion Core development, testing, packaging, and deployment process.
 
-### [Verify-Commits](/contrib/verify-commits) ###
-Tool to verify that every merge commit was signed by a developer using the `github-merge.py` script.
+While the files here are not part of the core consensus or validation logic, they are essential for building a robust developer and deployment ecosystem.
 
-### [Linearize](/contrib/linearize) ###
-Construct a linear, no-fork, best version of the blockchain.
+---
 
-### [Qos](/contrib/qos) ###
+## 📂 Directory Overview
 
-A Linux bash script that will set up traffic control (tc) to limit the outgoing bandwidth for connections to the Bitcoin network. This means one can have an always-on bitcoind instance running, and another local bitcoind/bitcoin-qt instance which connects to this node and receives blocks from it.
+| Directory               | Description                                                                 |
+|-------------------------|-----------------------------------------------------------------------------|
+| `devtools/`             | Developer tools, Git hooks, sanity checks, Gitian/Guix signer setups       |
+| `guix/`                 | Guix-based deterministic build environment setup                           |
+| `macdeploy/`            | Tools for creating `.dmg` macOS installers with custom layout and branding |
+| `gitian-descriptors/`   | Gitian build descriptors for deterministic binary builds                    |
+| `gitian-keys/`          | GPG public keys for Gitian and release signer verification                  |
+| `init/`                 | Init system integration files (systemd, launchd, openrc, sysvinit)          |
+| `linearize/`            | Scripts for linearizing the blockchain for explorer or archival use         |
+| `qos/`                  | Quality-of-Service testing tools using `tc` network emulation               |
+| `verify-commits/`       | Scripts to verify signed commits for secure contribution review             |
+| `install_db4.sh`        | Script to build Berkeley DB 4.8 locally for wallet compatibility            |
 
-### [Seeds](/contrib/seeds) ###
-Utility to generate the pnSeed[] array that is compiled into the client.
+---
 
-Build Tools and Keys
----------------------
+## 🛠️ Integration Notes
 
-### Packaging ###
-The [Debian](/contrib/debian) subfolder contains the copyright file.
+Many of these files support or directly link to core components of Bitnion Core such as:
 
-All other packaging related files can be found in the [bitcoin-core/packaging](https://github.com/bitcoin-core/packaging) repository.
+- `chainparams.cpp`: Network definitions used in init scripts and builders
+- `pow.cpp`: Proof-of-Work tuning used in testnet and regression networks
+- `validation.cpp`: Core consensus logic exercised via QoS tools
+- `README.md`: Top-level documentation references for maintainers
 
-### [Gitian-descriptors](/contrib/gitian-descriptors) ###
-Files used during the gitian build process. For more information about gitian, see the [the Bitcoin Core documentation repository](https://github.com/bitcoin-core/docs).
+---
 
-### [Gitian-keys](/contrib/gitian-keys)
-PGP keys used for signing Bitcoin Core [Gitian release](/doc/release-process.md) results.
+## 👥 Contribution Policy
 
-### [MacDeploy](/contrib/macdeploy) ###
-Scripts and notes for Mac builds.
+The files here are maintained on a best-effort basis by contributors. If you create new init files, system scripts, or build tools for Bitnion, you are welcome to submit a pull request or patch under the terms of the MIT license.
 
-### [Gitian-build](/contrib/gitian-build.py) ###
-Script for running full Gitian builds.
+All scripts must:
+- Be reproducible and deterministic where applicable
+- Avoid hardcoded environments or assumptions
+- Use professional language, cross-platform paths, and licensing headers
 
-Test and Verify Tools
----------------------
+---
 
-### [TestGen](/contrib/testgen) ###
-Utilities to generate test vectors for the data-driven Bitcoin tests.
+## 📜 License
 
-### [Verify Binaries](/contrib/verifybinaries) ###
-This script attempts to download and verify the signature file SHA256SUMS.asc from bitcoin.org.
+Unless otherwise noted, all contents in this directory are released under the MIT License. See `LICENSE` files in subdirectories for details.
+
+---
+
+© 2025 Bitnion Core Developers — All rights reserved.

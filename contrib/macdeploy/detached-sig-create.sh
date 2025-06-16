@@ -1,52 +1,32 @@
-#!/bin/sh
-# Copyright (c) 2014-2019 The Bitcoin Core developers
-# Distributed under the MIT software license, see the accompanying
-# file COPYING or http://www.opensource.org/licenses/mit-license.php.
+#!/usr/bin/env bash
+#
+# detached-sig-create.sh — Bitnion DMG Detached Signature Generator
+#
+# This script creates a detached GPG signature for the final Bitnion
+# macOS .dmg installer. The signature file can be published alongside
+# the binary for independent verification.
+#
+# License: MIT
+# Adapted for Bitnion Core
 
-export LC_ALL=C
 set -e
 
-ROOTDIR=dist
-BUNDLE="${ROOTDIR}/Bitcoin-Qt.app"
-CODESIGN=codesign
-TEMPDIR=sign.temp
-TEMPLIST=${TEMPDIR}/signatures.txt
-OUT=signature-osx.tar.gz
-OUTROOT=osx
+DMG_NAME="Bitnion-Core.dmg"
+SIGNATURE_FILE="Bitnion-Core.dmg.signature"
+GPG_KEY_ID="your-gpg-key-id"  # Replace with your actual GPG key ID
 
-if [ -z "$1" ]; then
-  echo "usage: $0 <codesign args>"
-  echo "example: $0 -s MyIdentity"
-  exit 1
+echo "[*] Generating detached signature for: $DMG_NAME"
+
+if [[ ! -f "$DMG_NAME" ]]; then
+    echo "[!] Error: File '$DMG_NAME' not found. Cannot sign."
+    exit 1
 fi
 
-rm -rf ${TEMPDIR} ${TEMPLIST}
-mkdir -p ${TEMPDIR}
+# Create a detached signature using GPG
+gpg --output "$SIGNATURE_FILE" --detach-sig --armor --local-user "$GPG_KEY_ID" "$DMG_NAME"
 
-${CODESIGN} -f --file-list ${TEMPLIST} "$@" "${BUNDLE}"
-
-grep -v CodeResources < "${TEMPLIST}" | while read i; do
-  TARGETFILE="${BUNDLE}/$(echo "${i}" | sed "s|.*${BUNDLE}/||")"
-  SIZE=$(pagestuff "$i" -p | tail -2 | grep size | sed 's/[^0-9]*//g')
-  OFFSET=$(pagestuff "$i" -p | tail -2 | grep offset | sed 's/[^0-9]*//g')
-  SIGNFILE="${TEMPDIR}/${OUTROOT}/${TARGETFILE}.sign"
-  DIRNAME="$(dirname "${SIGNFILE}")"
-  mkdir -p "${DIRNAME}"
-  echo "Adding detached signature for: ${TARGETFILE}. Size: ${SIZE}. Offset: ${OFFSET}"
-  dd if="$i" of="${SIGNFILE}" bs=1 skip=${OFFSET} count=${SIZE} 2>/dev/null
-done
-
-grep CodeResources < "${TEMPLIST}" | while read i; do
-  TARGETFILE="${BUNDLE}/$(echo "${i}" | sed "s|.*${BUNDLE}/||")"
-  RESOURCE="${TEMPDIR}/${OUTROOT}/${TARGETFILE}"
-  DIRNAME="$(dirname "${RESOURCE}")"
-  mkdir -p "${DIRNAME}"
-  echo "Adding resource for: \"${TARGETFILE}\""
-  cp "${i}" "${RESOURCE}"
-done
-
-rm ${TEMPLIST}
-
-tar -C "${TEMPDIR}" -czf "${OUT}" .
-rm -rf "${TEMPDIR}"
-echo "Created ${OUT}"
+echo "[✓] Detached signature created:"
+echo "    -> $SIGNATURE_FILE"
+echo
+echo "To verify:"
+echo "    gpg --verify $SIGNATURE_FILE $DMG_NAME"

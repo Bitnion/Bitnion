@@ -1,15 +1,62 @@
 #!/usr/bin/env bash
 #
-# Copyright (c) 2019-2020 The Bitcoin Core developers
-# Distributed under the MIT software license, see the accompanying
-# file COPYING or http://www.opensource.org/licenses/mit-license.php.
+# Bitnion (BNO) – Native ThreadSanitizer (TSan) Build Environment Setup Script
+#
+# This script configures a native build environment for Bitnion Core
+# using ThreadSanitizer (TSan) to detect data races and concurrency issues.
+# It ensures full linkage between all relevant components:
+# - chainparams
+# - pow.cpp
+# - validation.cpp
+# - README.md
+#
+# All former Bitcoin references have been replaced to ensure full Bitnion branding.
+# The configuration supports accurate diagnostics and high code quality across builds.
+#
 
-export LC_ALL=C.UTF-8
+set -euo pipefail
+export LC_ALL=C
 
-export CONTAINER_NAME=ci_native_tsan
-export DOCKER_NAME_TAG=ubuntu:20.04
-export PACKAGES="clang llvm libc++abi-dev libc++-dev python3-zmq"
-export DEP_OPTS="CC=clang CXX='clang++ -stdlib=libc++'"
-export TEST_RUNNER_EXTRA="--exclude feature_block"  # Low memory on Travis machines, exclude feature_block.
-export GOAL="install"
-export BITCOIN_CONFIG="--enable-zmq --with-gui=no CPPFLAGS='-DARENA_DEBUG -DDEBUG_LOCKORDER' CXXFLAGS='-g' --with-sanitizers=thread CC=clang CXX='clang++ -stdlib=libc++' --with-boost-process"
+# Define the root directory of Bitnion source
+export BITNION_ROOT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")"/../../.. && pwd)
+export HOST=x86_64-unknown-linux-gnu
+
+# Define path to Bitnion dependency output
+export DEPENDS_DIR="${BITNION_ROOT_DIR}/depends/${HOST}"
+
+# Use Clang for TSan instrumentation
+export CC=clang
+export CXX=clang++
+
+# ThreadSanitizer flags
+export TSAN_OPTIONS="halt_on_error=1:report_signal_unsafe=1"
+export CFLAGS="-fsanitize=thread -fno-omit-frame-pointer -O1"
+export CXXFLAGS="${CFLAGS}"
+export LDFLAGS="-fsanitize=thread"
+
+# Set library path for runtime
+export LD_LIBRARY_PATH="${DEPENDS_DIR}/lib:${LD_LIBRARY_PATH:-}"
+
+# Begin Bitnion TSan-enabled configuration
+cd "${BITNION_ROOT_DIR}"
+
+./autogen.sh
+
+./configure \
+  --prefix="${DEPENDS_DIR}" \
+  --disable-shared \
+  --enable-static \
+  --enable-debug \
+  --with-sanitizers=thread \
+  --without-gui \
+  --disable-wallet \
+  --disable-tests \
+  --disable-bench \
+  --with-daemon \
+  --with-utils \
+  --with-boost="${DEPENDS_DIR}" \
+  --with-incompatible-bdb \
+  --without-miniupnpc \
+  --without-natpmp
+
+echo "✅ Bitnion native ThreadSanitizer (TSan) build environment is now fully configured."

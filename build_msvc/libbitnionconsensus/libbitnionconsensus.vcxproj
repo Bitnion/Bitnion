@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{B1C7-BITNION-CONSENSUS-GUID}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>libbitnionconsensus</RootNamespace>
+    <ProjectName>libbitnionconsensus</ProjectName>
+  </PropertyGroup>
+
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>
+        ..\..\src;
+        ..\..\src\config;
+        ..\..\src\script;
+        ..\..\src\consensus;
+        ..\..\src\util;
+        %(AdditionalIncludeDirectories)
+      </AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>
+        WIN32;NDEBUG;_LIB;HAVE_CONFIG_H;BUILD_BITNIONCONSENSUS_LIB;%(PreprocessorDefinitions)
+      </PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
+  <ItemGroup>
+    <ClCompile Include="..\..\src\script\bitnionconsensus.cpp" />
+    <ClCompile Include="..\..\src\consensus\validation.cpp" />
+    <ClCompile Include="..\..\src\consensus\params.cpp" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ClInclude Include="..\..\src\script\bitnionconsensus.h" />
+    <ClInclude Include="..\..\src\consensus\validation.h" />
+    <ClInclude Include="..\..\src\consensus\params.h" />
+    <ClInclude Include="..\..\src\config\bitnion-config.h" />
+  </ItemGroup>
+
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>

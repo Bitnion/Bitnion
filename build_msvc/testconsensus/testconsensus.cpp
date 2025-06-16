@@ -1,54 +1,26 @@
-// Copyright (c) 2018-2019 The Bitcoin Core developers
-// Distributed under the MIT software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+#include <stdlib.h>
+#include <stdio.h>
 
-#include <iostream>
+#include "script/bitnionconsensus.h"
 
-// bitcoin includes.
-#include <..\src\script\bitcoinconsensus.h>
-#include <..\src\primitives\transaction.h>
-#include <..\src\script\script.h>
-#include <..\src\streams.h>
-#include <..\src\version.h>
-
-CMutableTransaction BuildSpendingTransaction(const CScript& scriptSig, const CScriptWitness& scriptWitness, int nValue = 0)
+int main(int argc, char* argv[])
 {
-    CMutableTransaction txSpend;
-    txSpend.nVersion = 1;
-    txSpend.nLockTime = 0;
-    txSpend.vin.resize(1);
-    txSpend.vout.resize(1);
-    txSpend.vin[0].scriptWitness = scriptWitness;
-    txSpend.vin[0].prevout.hash = uint256();
-    txSpend.vin[0].prevout.n = 0;
-    txSpend.vin[0].scriptSig = scriptSig;
-    txSpend.vin[0].nSequence = CTxIn::SEQUENCE_FINAL;
-    txSpend.vout[0].scriptPubKey = CScript();
-    txSpend.vout[0].nValue = nValue;
+    if (argc < 2) {
+        fprintf(stderr, "Usage: %s hex-scriptpubkey\\n", argv[0]);
+        return 1;
+    }
 
-    return txSpend;
-}
+    const unsigned char scriptPubKey[] = { 0x51 }; // OP_TRUE for testing
+    const unsigned char txTo[] = { 0x00 }; // Dummy tx
+    unsigned int flags = bitnionconsensus_SCRIPT_FLAGS_VERIFY_ALL;
+    bitnionconsensus_error err;
 
-int main()
-{
-    std::cout << "bitcoinconsensus version: " << bitcoinconsensus_version() << std::endl;
+    int result = bitnionconsensus_verify_script(scriptPubKey, sizeof(scriptPubKey),
+                                                 txTo, sizeof(txTo),
+                                                 flags, &err);
 
-    CScript pubKeyScript;
-    pubKeyScript << OP_1 << OP_0 << OP_1;
-
-    int amount = 0; // 600000000;
-
-    CScript scriptSig;
-    CScriptWitness scriptWitness;
-    CTransaction vanillaSpendTx = BuildSpendingTransaction(scriptSig, scriptWitness, amount);
-    CDataStream stream(SER_NETWORK, PROTOCOL_VERSION);
-    stream << vanillaSpendTx;
-
-    bitcoinconsensus_error err;
-    auto op0Result = bitcoinconsensus_verify_script_with_amount(pubKeyScript.data(), pubKeyScript.size(), amount, (const unsigned char*)&stream[0], stream.size(), 0, bitcoinconsensus_SCRIPT_FLAGS_VERIFY_ALL, &err);
-    std::cout << "Op0 result: " << op0Result << ", error code " << err << std::endl;
-
-    getchar();
+    printf("Bitnion Script verification result: %d\\n", result);
+    printf("Bitnion Script verification error: %d\\n", err);
 
     return 0;
 }

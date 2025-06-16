@@ -1,59 +1,53 @@
 #!/usr/bin/env python3
-# Copyright (c) 2013-2018 The Bitcoin Core developers
-# Distributed under the MIT software license, see the accompanying
-# file COPYING or http://www.opensource.org/licenses/mit-license.php.
-import biplist
-from ds_store import DSStore
-from mac_alias import Alias
-import sys
+#
+# custom_dsstore.py — Bitnion macOS DMG layout generator
+#
+# This script creates a custom .DS_Store file used to control the visual layout
+# of the Bitnion installer window on macOS.
+#
+# Adapted from Bitcoin Core's macdeployqt tools.
+# License: MIT
 
-output_file = sys.argv[1]
-package_name_ns = sys.argv[2]
+import os
+import struct
+import subprocess
 
-ds = DSStore.open(output_file, 'w+')
-ds['.']['bwsp'] = {
-    'ShowStatusBar': False,
-    'WindowBounds': '{{300, 280}, {500, 343}}',
-    'ContainerShowSidebar': False,
-    'SidebarWidth': 0,
-    'ShowTabView': False,
-    'PreviewPaneVisibility': False,
-    'ShowToolbar': False,
-    'ShowSidebar': False,
-    'ShowPathbar': True
-}
+DS_STORE_CREATOR_TOOL = "/usr/local/bin/dsstore"
 
-icvp = {
-    'gridOffsetX': 0.0,
-    'textSize': 12.0,
-    'viewOptionsVersion': 1,
-    'backgroundImageAlias': b'\x00\x00\x00\x00\x02\x1e\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xd1\x94\\\xb0H+\x00\x05\x00\x00\x00\x98\x0fbackground.tiff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x99\xd19\xb0\xf8\x00\x00\x00\x00\x00\x00\x00\x00\xff\xff\xff\xff\x00\x00\r\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x0b.background\x00\x00\x10\x00\x08\x00\x00\xd1\x94\\\xb0\x00\x00\x00\x11\x00\x08\x00\x00\xd19\xb0\xf8\x00\x00\x00\x01\x00\x04\x00\x00\x00\x98\x00\x0e\x00 \x00\x0f\x00b\x00a\x00c\x00k\x00g\x00r\x00o\x00u\x00n\x00d\x00.\x00t\x00i\x00f\x00f\x00\x0f\x00\x02\x00\x00\x00\x12\x00\x1c/.background/background.tiff\x00\x14\x01\x06\x00\x00\x00\x00\x01\x06\x00\x02\x00\x00\x0cMacintosh HD\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xce\x97\xab\xc3H+\x00\x00\x01\x88[\x88\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02u\xab\x8d\xd1\x94\\\xb0devrddsk\xff\xff\xff\xff\x00\x00\t \x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x07bitcoin\x00\x00\x10\x00\x08\x00\x00\xce\x97\xab\xc3\x00\x00\x00\x11\x00\x08\x00\x00\xd1\x94\\\xb0\x00\x00\x00\x01\x00\x14\x01\x88[\x88\x00\x16\xa9\t\x00\x08\xfaR\x00\x08\xfaQ\x00\x02d\x8e\x00\x0e\x00\x02\x00\x00\x00\x0f\x00\x1a\x00\x0c\x00M\x00a\x00c\x00i\x00n\x00t\x00o\x00s\x00h\x00 \x00H\x00D\x00\x13\x00\x01/\x00\x00\x15\x00\x02\x00\x14\xff\xff\x00\x00\xff\xff\x00\x00',
-    'backgroundColorBlue': 1.0,
-    'iconSize': 96.0,
-    'backgroundColorGreen': 1.0,
-    'arrangeBy': 'none',
-    'showIconPreview': True,
-    'gridSpacing': 100.0,
-    'gridOffsetY': 0.0,
-    'showItemInfo': False,
-    'labelOnBottom': True,
-    'backgroundType': 2,
-    'backgroundColorRed': 1.0
-}
-alias = Alias.from_bytes(icvp['backgroundImageAlias'])
-alias.volume.name = package_name_ns
-alias.volume.posix_path = '/Volumes/' + package_name_ns
-alias.volume.disk_image_alias.target.filename = package_name_ns + '.temp.dmg'
-alias.volume.disk_image_alias.target.carbon_path = 'Macintosh HD:Users:\x00bitcoinuser:\x00Documents:\x00bitcoin:\x00bitcoin:\x00' + package_name_ns + '.temp.dmg'
-alias.volume.disk_image_alias.target.posix_path = 'Users/bitcoinuser/Documents/bitcoin/bitcoin/' + package_name_ns + '.temp.dmg'
-alias.target.carbon_path = package_name_ns + ':.background:\x00background.tiff'
-icvp['backgroundImageAlias'] = biplist.Data(alias.to_bytes())
-ds['.']['icvp'] = icvp
+def create_dsstore(volume_path, background_file="background.png"):
+    if not os.path.exists(DS_STORE_CREATOR_TOOL):
+        raise FileNotFoundError("Required tool 'dsstore' not found at: " + DS_STORE_CREATOR_TOOL)
 
-ds['.']['vSrn'] = ('long', 1)
+    print(f"[+] Generating .DS_Store for Bitnion DMG at: {volume_path}")
 
-ds['Applications']['Iloc'] = (370, 156)
-ds['Bitcoin-Qt.app']['Iloc'] = (128, 156)
+    # Configuration of layout: positions are in pixels
+    icon_positions = {
+        "Bitnion-Qt.app": (120, 150),
+        "Applications": (380, 150)
+    }
 
-ds.flush()
-ds.close()
+    # Set background image
+    background_path = os.path.join(volume_path, background_file)
+    if not os.path.exists(background_path):
+        print(f"[!] Warning: Background file not found: {background_path}")
+    else:
+        subprocess.run([
+            DS_STORE_CREATOR_TOOL,
+            "--volume", volume_path,
+            "--background", background_file,
+            "--icon", "Bitnion-Qt.app", "120", "150",
+            "--icon", "Applications", "380", "150",
+            "--window-size", "600", "400"
+        ], check=True)
+
+    print("[✓] .DS_Store creation completed.")
+
+if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Bitnion .DS_Store layout creator")
+    parser.add_argument("volume", help="Path to mounted DMG volume")
+    parser.add_argument("--background", default="background.png", help="Background image file")
+
+    args = parser.parse_args()
+    create_dsstore(args.volume, args.background)

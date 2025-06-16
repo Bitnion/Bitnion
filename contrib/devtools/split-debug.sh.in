@@ -1,10 +1,40 @@
-#!/bin/sh
-set -e
-if [ $# -ne 3 ];
-    then echo "usage: $0 <input> <stripped-binary> <debug-binary>"
-fi
+#!/usr/bin/env bash
+#
+# Bitnion Core - Debug Symbol Split Script Template (Autotools version)
+# This script is processed by ./configure to produce split-debug.sh
+# It separates debug symbols from release binaries and stores them in a designated debug directory.
 
-@OBJCOPY@ --enable-deterministic-archives -p --only-keep-debug $1 $3
-@OBJCOPY@ --enable-deterministic-archives -p --strip-debug $1 $2
-@STRIP@ --enable-deterministic-archives -p -s $2
-@OBJCOPY@ --enable-deterministic-archives -p --add-gnu-debuglink=$3 $2
+set -e
+
+TOPDIR="@abs_top_srcdir@"
+OUTDIR="@DEBUG_SYMBOLS_DIR@"
+
+mkdir -p "$OUTDIR"
+
+BINARIES=(
+  "bitniond"
+  "bitnion-cli"
+  "bitnion-tx"
+  "qt/bitnion-qt"
+)
+
+for BIN in "${BINARIES[@]}"; do
+  BIN_PATH="$TOPDIR/src/$BIN"
+
+  if [ ! -f "$BIN_PATH" ]; then
+    echo "⚠️  Skipping missing binary: $BIN_PATH"
+    continue
+  fi
+
+  DBG_FILE="$OUTDIR/$(basename "$BIN").dbg"
+
+  echo "🔧 Processing: $BIN_PATH"
+  objcopy --only-keep-debug "$BIN_PATH" "$DBG_FILE"
+  strip --strip-debug --strip-unneeded "$BIN_PATH"
+  objcopy --add-gnu-debuglink="$DBG_FILE" "$BIN_PATH"
+
+  echo "✔️  Debug symbols extracted: $DBG_FILE"
+done
+
+echo "✅ Bitnion debug symbol split completed."
+

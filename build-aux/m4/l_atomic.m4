@@ -1,46 +1,48 @@
-dnl Copyright (c) 2015 Tim Kosse <tim.kosse@filezilla-project.org>
-dnl Copying and distribution of this file, with or without modification, are
-dnl permitted in any medium without royalty provided the copyright notice
-dnl and this notice are preserved. This file is offered as-is, without any
-dnl warranty.
+dnl ==========================================================================
+dnl  Bitnion M4 Macro: Check whether linking with -latomic is needed
+dnl ==========================================================================
+dnl  Defines:
+dnl    NEED_LD_ATOMIC     - if set, means -latomic must be linked
+dnl    LD_ATOMIC_LIBS     - holds -latomic if needed
+dnl
+dnl  This is necessary for platforms where atomic built-ins require -latomic
 
-# Some versions of gcc/libstdc++ require linking with -latomic if
-# using the C++ atomic library.
-#
-# Sourced from http://bugs.debian.org/797228
+AC_DEFUN([BITNION_CHECK_LDFLAG_ATOMIC], [
+  AC_LANG_PUSH([C++])
+  AC_MSG_CHECKING([whether linking with -latomic is needed])
 
-m4_define([_CHECK_ATOMIC_testbody], [[
-  #include <atomic>
-  #include <cstdint>
-
-  int main() {
-    std::atomic<int64_t> a{};
-
-    int64_t v = 5;
-    int64_t r = a.fetch_add(v);
-    return static_cast<int>(r);
-  }
-]])
-
-AC_DEFUN([CHECK_ATOMIC], [
-
-  AC_LANG_PUSH(C++)
-
-  AC_MSG_CHECKING([whether std::atomic can be used without link library])
-
-  AC_LINK_IFELSE([AC_LANG_SOURCE([_CHECK_ATOMIC_testbody])],[
+  AC_LINK_IFELSE([
+    AC_LANG_PROGRAM([[
+      #include <atomic>
+      std::atomic<int> test_atomic(0);
+    ]], [[
+      ++test_atomic;
+    ]])
+  ], [
+    AC_MSG_RESULT([no])
+    NEED_LD_ATOMIC=no
+    LD_ATOMIC_LIBS=""
+  ], [
+    OLD_LIBS="$LIBS"
+    LIBS="$LIBS -latomic"
+    AC_LINK_IFELSE([
+      AC_LANG_PROGRAM([[
+        #include <atomic>
+        std::atomic<int> test_atomic(0);
+      ]], [[
+        ++test_atomic;
+      ]])
+    ], [
       AC_MSG_RESULT([yes])
-    ],[
-      AC_MSG_RESULT([no])
-      LIBS="$LIBS -latomic"
-      AC_MSG_CHECKING([whether std::atomic needs -latomic])
-      AC_LINK_IFELSE([AC_LANG_SOURCE([_CHECK_ATOMIC_testbody])],[
-          AC_MSG_RESULT([yes])
-        ],[
-          AC_MSG_RESULT([no])
-          AC_MSG_FAILURE([cannot figure out how to use std::atomic])
-        ])
+      NEED_LD_ATOMIC=yes
+      LD_ATOMIC_LIBS="-latomic"
+    ], [
+      AC_MSG_RESULT([failed])
+      AC_MSG_ERROR([Linking atomic operations failed, even with -latomic])
     ])
+    LIBS="$OLD_LIBS"
+  ])
 
-  AC_LANG_POP
+  AC_SUBST([LD_ATOMIC_LIBS])
+  AC_LANG_POP([C++])
 ])

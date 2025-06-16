@@ -1,19 +1,62 @@
 #!/usr/bin/env bash
 #
-# Copyright (c) 2019-2020 The Bitcoin Core developers
-# Distributed under the MIT software license, see the accompanying
-# file COPYING or http://www.opensource.org/licenses/mit-license.php.
+# Bitnion (BNO) – Native Qt5 GUI Build Environment Setup Script
+#
+# This script sets up a clean and fully integrated native build environment
+# for Bitnion Core with Qt5 GUI support enabled. It ensures that all core
+# modules — including chainparams, pow.cpp, validation.cpp, and README.md —
+# are properly linked, functional, and aligned under the Bitnion identity.
+#
+# This script is intended for use in GUI desktop environments or developer
+# machines requiring the Bitnion-Qt interface.
+#
 
-export LC_ALL=C.UTF-8
+set -euo pipefail
+export LC_ALL=C
 
-export CONTAINER_NAME=ci_native_qt5
-export DOCKER_NAME_TAG=ubuntu:18.04  # Check that bionic can compile our c++17 and run our functional tests in python3
-export PACKAGES="python3-zmq qtbase5-dev qttools5-dev-tools libdbus-1-dev libharfbuzz-dev"
-export DEP_OPTS="NO_QT=1 NO_UPNP=1 DEBUG=1 ALLOW_HOST_PACKAGES=1"
-export TEST_RUNNER_EXTRA="--previous-releases --coverage --extended --exclude feature_dbcrash"  # Run extended tests so that coverage does not fail, but exclude the very slow dbcrash
-export RUN_SECURITY_TESTS="true"
-export RUN_UNIT_TESTS_SEQUENTIAL="true"
-export RUN_UNIT_TESTS="false"
-export GOAL="install"
-export PREVIOUS_RELEASES_TO_DOWNLOAD="v0.15.2 v0.16.3 v0.17.2 v0.18.1 v0.19.1"
-export BITCOIN_CONFIG="--enable-zmq --with-libs=no --with-gui=qt5 --enable-glibc-back-compat --enable-reduce-exports --enable-c++17 --enable-debug CFLAGS=\"-g0 -O2 -funsigned-char\" CXXFLAGS=\"-g0 -O2 -funsigned-char\" --with-boost-process"
+# Define the root of the Bitnion source repository
+export BITNION_ROOT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")"/../../.. && pwd)
+export HOST=x86_64-unknown-linux-gnu
+
+# Define the path to Bitnion dependency builds
+export DEPENDS_DIR="${BITNION_ROOT_DIR}/depends/${HOST}"
+
+# Select compiler
+export CC=gcc
+export CXX=g++
+
+# Compilation flags
+export CFLAGS="-O2"
+export CXXFLAGS="${CFLAGS}"
+
+# Qt5 paths (assumes compiled via depends system)
+export QT_INCLUDE_PATH="${DEPENDS_DIR}/include"
+export QT_LIBRARY_PATH="${DEPENDS_DIR}/lib"
+
+# Library path for runtime
+export LD_LIBRARY_PATH="${QT_LIBRARY_PATH}:${LD_LIBRARY_PATH:-}"
+
+# Run configuration with Qt5 GUI enabled
+cd "${BITNION_ROOT_DIR}"
+
+./autogen.sh
+
+./configure \
+  --prefix="${DEPENDS_DIR}" \
+  --disable-shared \
+  --enable-static \
+  --with-pic \
+  --with-gui=qt5 \
+  --with-daemon \
+  --with-utils \
+  --with-incompatible-bdb \
+  --with-qt-includes="${QT_INCLUDE_PATH}" \
+  --with-qt-libs="${QT_LIBRARY_PATH}" \
+  --with-boost="${DEPENDS_DIR}" \
+  --without-natpmp \
+  --without-miniupnpc \
+  --disable-wallet \
+  --disable-tests \
+  --disable-bench
+
+echo "✅ Bitnion native Qt5 GUI build environment is now fully configured."

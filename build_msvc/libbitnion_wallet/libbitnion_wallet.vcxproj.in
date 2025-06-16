@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{D134F5A9-8B4C-4F47-97BD-22D5D412234F}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>libbitnion_wallet</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="$(Configuration)|$(Platform)==Release|x64" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ItemGroup>
+    <ClCompile Include="..\..\src\wallet\wallet.cpp" />
+    <ClCompile Include="..\..\src\wallet\walletutil.cpp" />
+    <ClCompile Include="..\..\src\chainparams.cpp" />
+    <ClCompile Include="..\..\src\validation.cpp" />
+    <ClCompile Include="..\..\src\pow.cpp" />
+    <ClCompile Include="..\..\src\clientversion.cpp" />
+    <ClCompile Include="..\..\src\util\moneystr.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\wallet\wallet.h" />
+    <ClInclude Include="..\..\src\wallet\walletutil.h" />
+    <ClInclude Include="..\..\src\chainparams.h" />
+    <ClInclude Include="..\..\src\validation.h" />
+    <ClInclude Include="..\..\src\pow.h" />
+    <ClInclude Include="..\..\src\clientversion.h" />
+    <ClInclude Include="..\..\src\util\moneystr.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>

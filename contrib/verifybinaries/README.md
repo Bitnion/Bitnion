@@ -1,41 +1,83 @@
-### Verify Binaries
+# Bitnion – Binary Verification Guide
 
-#### Preparation:
+This directory contains tools and instructions for verifying the integrity and authenticity of official Bitnion (BNO) release binaries.
 
-Make sure you obtain the proper release signing key and verify the fingerprint with several independent sources.
+---
 
-```sh
-$ gpg --fingerprint "Bitcoin Core binary release signing key"
-pub   4096R/36C2E964 2015-06-24 [expires: YYYY-MM-DD]
-      Key fingerprint = 01EA 5486 DE18 A882 D4C2  6845 90C8 019E 36C2 E964
-uid                  Wladimir J. van der Laan (Bitcoin Core binary release signing key) <laanwj@gmail.com>
-```
+## 🔐 Purpose
 
-#### Usage:
+To ensure security and trust in every release, Bitnion Core developers provide:
 
-This script attempts to download the signature file `SHA256SUMS.asc` from https://bitcoin.org.
+- **SHA256 checksums** of all compiled binaries.
+- **GPG-signed verification files** (`SHA256SUMS.asc`) to prove authenticity.
+- A helper script (`verify.sh`) to automate the process of downloading, verifying, and auditing releases.
 
-It first checks if the signature passes, and then downloads the files specified in the file, and checks if the hashes of these files match those that are specified in the signature file.
+This process is based on best practices originally adopted by the Bitcoin Core project, adapted specifically for Bitnion.
 
-The script returns 0 if everything passes the checks. It returns 1 if either the signature check or the hash check doesn't pass. If an error occurs the return value is 2.
+---
+
+## 📁 Files Included
+
+- `verify.sh`  
+  Bash script that downloads SHA256SUMS and its signature, imports the signer's GPG key (if missing), and verifies all files.
+
+- `README.md`  
+  This documentation file.
+
+---
+
+## 📦 File Layout (Per Release)
+
+Each official Bitnion release will be available at:
 
 
-```sh
-./verify.sh bitcoin-core-0.11.2
-./verify.sh bitcoin-core-0.12.0
-./verify.sh bitcoin-core-0.13.0-rc3
-```
 
-If you only want to download the binaries of certain platform, add the corresponding suffix, e.g.:
+https://bitnion.org/bin/vX.Y.Z/
 
-```sh
-./verify.sh bitcoin-core-0.11.2-osx
-./verify.sh 0.12.0-linux
-./verify.sh bitcoin-core-0.13.0-rc3-win64
-```
 
-If you do not want to keep the downloaded binaries, specify anything as the second parameter.
+And will include:
 
-```sh
-./verify.sh bitcoin-core-0.13.0 delete
-```
+- `SHA256SUMS`
+- `SHA256SUMS.asc`
+- Signed binaries (e.g., `bitnion-x86_64-linux.tar.gz`, `bitnion-setup.exe`, etc.)
+
+---
+
+## ✅ How to Verify
+
+1. Open a terminal and run:
+   ```bash
+   ./verify.sh v1.0.0 bitnion
+
+Replace v1.0.0 with your desired release tag.
+
+The script will:
+
+Download SHA256SUMS and SHA256SUMS.asc
+
+Fetch release binaries
+
+Import the GPG key if not available
+
+Verify signature and SHA256 checksums
+
+If successful, you will see:
+
+✅ All Bitnion binaries are verified and signed correctly.
+
+
+🛡️ Security Notes
+Always compare the GPG key fingerprint with Bitnion's official developer keys listed at:
+https://bitnion.org/keys
+
+Never trust unsigned or unofficial binaries.
+
+Consider building from source if you have doubts about precompiled releases.
+
+📧 Contact
+For release announcements and key updates:
+
+Website: https://bitnion.org
+
+Email: bitnion@gmail.com
+

@@ -1,28 +1,36 @@
-// Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2018 The Bitcoin Core developers
-// Distributed under the MIT software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+// =============================================================================
+// Bitnion (BNO) – A Fair and Foundational Cryptocurrency
+//
+// ▪ Symbol:       BNO
+// ▪ Smallest Unit: nion (1 BNO = 100,000,000 nion)
+// ▪ Max Supply:   15,000,000 BNO (1.5 billion nion)
+// ▪ Premine:      1,000,000 BNO in genesis block
+// ▪ Network:      bitnion
+//
+// ⚠️ Bitnion is not an investment or token offering.
+// Contact: bitnion@gmail.com
+// =============================================================================
 
-#ifndef BITCOIN_AMOUNT_H
-#define BITCOIN_AMOUNT_H
+#ifndef BITNION_AMOUNT_H
+#define BITNION_AMOUNT_H
 
 #include <stdint.h>
+#include <string>
 
-/** Amount in satoshis (Can be negative) */
+/** Amount in nion (base unit).
+ * 1 BNO = 100,000,000 nion
+ */
 typedef int64_t CAmount;
+static const CAmount NION = 1;
+static const CAmount COIN = 100000000 * NION;
 
-static const CAmount COIN = 100000000;
+/** Maximum Bitnion supply: 15 million BNO = 1.5 billion nion */
+static const CAmount MAX_MONEY = 15000000 * COIN;
 
-/** No amount larger than this (in satoshi) is valid.
- *
- * Note that this constant is *not* the total money supply, which in Bitcoin
- * currently happens to be less than 21,000,000 BTC for various reasons, but
- * rather a sanity check. As this sanity check is used by consensus-critical
- * validation code, the exact value of the MAX_MONEY constant is consensus
- * critical; in unusual circumstances like a(nother) overflow bug that allowed
- * for the creation of coins out of thin air modification could lead to a fork.
- * */
-static const CAmount MAX_MONEY = 21000000 * COIN;
-inline bool MoneyRange(const CAmount& nValue) { return (nValue >= 0 && nValue <= MAX_MONEY); }
+/** Check if amount is within valid range */
+inline bool MoneyRange(const CAmount& nValue)
+{
+    return (nValue >= 0 && nValue <= MAX_MONEY);
+}
 
-#endif //  BITCOIN_AMOUNT_H
+#endif // BITNION_AMOUNT_H

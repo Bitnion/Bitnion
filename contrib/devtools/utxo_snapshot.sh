@@ -1,44 +1,36 @@
 #!/usr/bin/env bash
 #
-# Copyright (c) 2019 The Bitcoin Core developers
-# Distributed under the MIT software license, see the accompanying
-# file COPYING or http://www.opensource.org/licenses/mit-license.php.
+# Bitnion Core - UTXO Snapshot Generation Script
 #
-export LC_ALL=C
+# This script generates a UTXO snapshot from an already synchronized
+# Bitnion node. The snapshot can be used to bootstrap other nodes or for analysis.
+# Make sure bitniond is running with txindex=1 and sufficient chainstate.
 
-set -ueo pipefail
+set -e
 
-if (( $# < 3 )); then
-  echo 'Usage: utxo_snapshot.sh <generate-at-height> <snapshot-out-path> <bitcoin-cli-call ...>'
-  echo
-  echo "  if <snapshot-out-path> is '-', don't produce a snapshot file but instead print the "
-  echo "  expected assumeutxo hash"
-  echo
-  echo 'Examples:'
-  echo
-  echo "  ./contrib/devtools/utxo_snapshot.sh 570000 utxo.dat ./src/bitcoin-cli -datadir=\$(pwd)/testdata"
-  echo '  ./contrib/devtools/utxo_snapshot.sh 570000 - ./src/bitcoin-cli'
-  exit 1
+DATADIR=${DATADIR:-~/.bitnion}
+OUTDIR="utxo-snapshot-$(date +%Y%m%d_%H%M%S)"
+SNAPSHOT_FILE="utxo-snapshot.dat"
+BLOCKHASH_FILE="snapshot-blockhash.txt"
+
+mkdir -p "$OUTDIR"
+
+echo "📡 Fetching current best block hash..."
+BLOCKHASH=$(bitnion-cli -datadir="$DATADIR" getbestblockhash)
+
+if [ -z "$BLOCKHASH" ]; then
+    echo "❌ Failed to retrieve best block hash from bitniond"
+    exit 1
 fi
 
-GENERATE_AT_HEIGHT="${1}"; shift;
-OUTPUT_PATH="${1}"; shift;
-# Most of the calls we make take a while to run, so pad with a lengthy timeout.
-BITCOIN_CLI_CALL="${*} -rpcclienttimeout=9999999"
+echo "📌 Best block: $BLOCKHASH"
 
-# Block we'll invalidate/reconsider to rewind/fast-forward the chain.
-PIVOT_BLOCKHASH=$($BITCOIN_CLI_CALL getblockhash $(( GENERATE_AT_HEIGHT + 1 )) )
+echo "📥 Exporting UTXO snapshot to $OUTDIR/$SNAPSHOT_FILE..."
+bitnion-cli -datadir="$DATADIR" dumptxoutset "$OUTDIR/$SNAPSHOT_FILE"
 
-(>&2 echo "Rewinding chain back to height ${GENERATE_AT_HEIGHT} (by invalidating ${PIVOT_BLOCKHASH}); this may take a while")
-${BITCOIN_CLI_CALL} invalidateblock "${PIVOT_BLOCKHASH}"
+echo "$BLOCKHASH" > "$OUTDIR/$BLOCKHASH_FILE"
+echo "🗂️  Snapshot complete."
+echo "📁 Output directory: $OUTDIR"
+echo "📄 Block hash file:  $OUTDIR/$BLOCKHASH_FILE"
+echo "🪙 UTXO snapshot:    $OUTDIR/$SNAPSHOT_FILE"
 
-if [[ "${OUTPUT_PATH}" = "-" ]]; then
-  (>&2 echo "Generating txoutset info...")
-  ${BITCOIN_CLI_CALL} gettxoutsetinfo | grep hash_serialized_2 | sed 's/^.*: "\(.\+\)\+",/\1/g'
-else
-  (>&2 echo "Generating UTXO snapshot...")
-  ${BITCOIN_CLI_CALL} dumptxoutset "${OUTPUT_PATH}"
-fi
-
-(>&2 echo "Restoring chain to original height; this may take a while")
-${BITCOIN_CLI_CALL} reconsiderblock "${PIVOT_BLOCKHASH}"

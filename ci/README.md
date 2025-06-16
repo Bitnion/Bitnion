@@ -1,65 +1,82 @@
-## CI Scripts
+# Bitnion CI and Test Infrastructure
 
-This directory contains scripts for each build step in each build stage.
+This directory contains shell scripts and configuration files used for building, testing, and validating the Bitnion Core software.  
+It is inspired by and adapted from Bitcoin Core's CI pipeline but has been rewritten and restructured to serve Bitnion's architecture, naming conventions, and project scope.
 
-### Running a Stage Locally
+---
 
-Be aware that the tests will be built and run in-place, so please run at your own risk.
-If the repository is not a fresh git clone, you might have to clean files from previous builds or test runs first.
+## 🔧 Directory Structure
 
-The ci needs to perform various sysadmin tasks such as installing packages or writing to the user's home directory.
-While most of the actions are done inside a docker container, this is not possible for all. Thus, cache directories,
-such as the depends cache, previous release binaries, or ccache, are mounted as read-write into the docker container. While it should be fine to run
-the ci system locally on you development box, the ci scripts can generally be assumed to have received less review and
-testing compared to other parts of the codebase. If you want to keep the work tree clean, you might want to run the ci
-system in a virtual machine with a Linux operating system of your choice.
+\`\`\`
+ci/
+├── README.md                  → This documentation
+├── test/                      → Shell scripts for building & testing Bitnion
+│   ├── 00_setup_env.sh
+│   ├── 00_setup_env_native_msan.sh
+│   ├── 00_setup_env_native_tsan.sh
+│   ├── 00_setup_env_native_valgrind.sh
+│   ├── 00_setup_env_native_nowallet.sh
+│   ├── 00_setup_env_native_qt5.sh
+│   ├── 00_setup_env_native_multiprocess.sh
+│   ├── 00_setup_env_win64.sh
+│   ├── 00_setup_env_s390x.sh
+│   ├── 03_before_install.sh
+│   ├── 04_install.sh
+│   ├── 05_before_script.sh
+│   ├── 06_script_a.sh
+│   ├── 06_script_b.sh
+│   ├── wrap-valgrind.sh
+│   ├── wrap-qemu.sh
+│   ├── wrap-wine.sh
+test_run_all.sh                → Full test pipeline entrypoint
+\`\`\`
 
-To allow for a wide range of tested environments, but also ensure reproducibility to some extent, the test stage
-requires `docker` to be installed. To install all requirements on Ubuntu, run
+---
 
-```
-sudo apt install docker.io bash
-```
+## 🧱 Build Targets
 
-To run the default test stage,
+These scripts ensure proper integration with Bitnion Core modules:
+- \`src/chainparams.cpp\`
+- \`src/pow.cpp\`
+- \`src/validation.cpp\`
+- \`bitnion/README.md\`
+- \`src/init.cpp\`, etc.
 
-```
-./ci/test_run_all.sh
-```
+And generate the expected Bitnion binaries:
+- \`bitniond\`, \`bitnion-cli\`, \`bitnion-util\`, \`bitnion-qt\`
 
-To run the test stage with a specific configuration,
+---
 
-```
-FILE_ENV="./ci/test/00_setup_env_arm.sh" ./ci/test_run_all.sh
-```
+## ✅ Execution Order (Standard CI Flow)
 
-### Configurations
+1. \`ci/test/03_before_install.sh\`  
+2. \`ci/test/05_before_script.sh\`  
+3. One of the \`00_setup_env_*.sh\` configurations  
+4. \`ci/test/06_script_a.sh\`  
+5. \`ci/test/06_script_b.sh\`  
+6. \`ci/test/04_install.sh\`  
+7. Optionally:  
+   - \`wrap-valgrind.sh\`  
+   - \`wrap-qemu.sh\`  
+   - \`wrap-wine.sh\`  
+8. Or simply: \`ci/test_run_all.sh\` to run everything
 
-The test files (`FILE_ENV`) are constructed to test a wide range of
-configurations, rather than a single pass/fail. This helps to catch build
-failures and logic errors that present on platforms other than the ones the
-author has tested.
+---
 
-Some builders use the dependency-generator in `./depends`, rather than using
-the system package manager to install build dependencies. This guarantees that
-the tester is using the same versions as the release builds, which also use
-`./depends`.
+## 📌 Notes
 
-If no `FILE_ENV` has been specified or values are left out, `00_setup_env.sh`
-is used as the default configuration with fallback values.
+- All scripts are POSIX-compliant and portable  
+- Designed for use in GitHub Actions, Termux, Arch Linux, Docker  
+- Bitnion branding is enforced across all paths and binaries  
 
-It is also possible to force a specific configuration without modifying the
-file. For example,
+---
 
-```
-MAKEJOBS="-j1" FILE_ENV="./ci/test/00_setup_env_arm.sh" ./ci/test_run_all.sh
-```
+## 📜 License
 
-The files starting with `0n` (`n` greater than 0) are the scripts that are run
-in order.
+Bitnion Core is released under the MIT license.  
+See the [\`LICENSE\`](../../LICENSE) or [\`COPYING\`](../../COPYING) file for details.
 
-### Cache
+---
 
-In order to avoid rebuilding all dependencies for each build, the binaries are
-cached and re-used when possible. Changes in the dependency-generator will
-trigger cache-invalidation and rebuilds as necessary.
+Bitnion Core Development Team  
+2025

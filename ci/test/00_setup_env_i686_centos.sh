@@ -1,15 +1,38 @@
 #!/usr/bin/env bash
-#
-# Copyright (c) 2020 The Bitcoin Core developers
-# Distributed under the MIT software license, see the accompanying
-# file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-export LC_ALL=C.UTF-8
+set -euxo pipefail
 
-export HOST=i686-pc-linux-gnu
-export CONTAINER_NAME=ci_i686_centos_7
-export DOCKER_NAME_TAG=centos:7
-export DOCKER_PACKAGES="gcc-c++ glibc-devel.x86_64 libstdc++-devel.x86_64 glibc-devel.i686 libstdc++-devel.i686 ccache libtool make git python3 python36-zmq which patch lbzip2 dash"
-export GOAL="install"
-export BITCOIN_CONFIG="--enable-zmq --with-gui=qt5 --enable-reduce-exports --with-boost-process"
-export CONFIG_SHELL="/bin/dash"
+echo ">> Setting up environment for Bitnion build on CentOS i686..."
+
+# Enable EPEL and SCL repos for updated devtools
+yum install -y epel-release centos-release-scl
+
+# Install dependencies
+yum install -y \\
+    gcc \\
+    gcc-c++ \\
+    make \\
+    libtool \\
+    curl \\
+    git \\
+    autoconf \\
+    automake \\
+    pkgconfig \\
+    which \\
+    libstdc++-devel \\
+    bzip2
+
+# Optional: Use devtoolset for modern GCC
+yum install -y devtoolset-8
+source /opt/rh/devtoolset-8/enable
+
+# Set environment variables
+export CC=gcc
+export CXX=g++
+export CONFIG_SITE=$PWD/depends/i686-pc-linux-gnu/share/config.site
+
+# Confirm environment
+gcc --version
+uname -a
+
+echo ">> Environment setup for Bitnion on CentOS i686 completed."

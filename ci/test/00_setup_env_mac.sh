@@ -1,18 +1,30 @@
 #!/usr/bin/env bash
-#
-# Copyright (c) 2019-2020 The Bitcoin Core developers
-# Distributed under the MIT software license, see the accompanying
-# file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-export LC_ALL=C.UTF-8
+set -euxo pipefail
 
-export CONTAINER_NAME=ci_macos_cross
-export DOCKER_NAME_TAG=ubuntu:18.04  # Check that bionic can cross-compile to macos (bionic is used in the gitian build as well)
-export HOST=x86_64-apple-darwin16
-export PACKAGES="cmake imagemagick libcap-dev librsvg2-bin libz-dev libbz2-dev libtiff-tools python3-dev python3-setuptools"
-export XCODE_VERSION=11.3.1
-export XCODE_BUILD_ID=11C505
-export RUN_UNIT_TESTS=false
-export RUN_FUNCTIONAL_TESTS=false
-export GOAL="deploy"
-export BITCOIN_CONFIG="--with-gui --enable-reduce-exports --enable-werror --with-boost-process"
+echo ">> Setting up macOS environment for Bitnion cross-build..."
+
+# Check and install Homebrew if not present
+if ! command -v brew >/dev/null 2>&1; then
+  echo "Homebrew not found. Installing..."
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+fi
+
+# Install required dependencies
+brew update
+brew install autoconf automake libtool pkg-config coreutils cmake gnu-sed git
+
+# Use GNU sed over BSD sed for compatibility
+export PATH="/usr/local/opt/gnu-sed/libexec/gnubin:$PATH"
+
+# Set up cross-compiler variables if necessary
+export CC=clang
+export CXX=clang++
+export CONFIG_SITE=$PWD/depends/x86_64-apple-darwin/share/config.site
+
+# Show environment summary
+uname -a
+sw_vers || true
+clang --version
+
+echo ">> macOS environment for Bitnion is ready."

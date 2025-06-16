@@ -1,28 +1,27 @@
 #!/usr/bin/env bash
-#
-# Copyright (c) 2019-2020 The Bitcoin Core developers
-# Distributed under the MIT software license, see the accompanying
-# file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-export LC_ALL=C.UTF-8
+set -euxo pipefail
 
-export HOST=arm-linux-gnueabihf
-# The host arch is unknown, so we run the tests through qemu.
-# If the host is arm and wants to run the tests natively, it can set QEMU_USER_CMD to the empty string.
-if [ -z ${QEMU_USER_CMD+x} ]; then export QEMU_USER_CMD="${QEMU_USER_CMD:-"qemu-arm -L /usr/arm-linux-gnueabihf/"}"; fi
-export DPKG_ADD_ARCH="armhf"
-export PACKAGES="python3-zmq g++-arm-linux-gnueabihf busybox libc6:armhf libstdc++6:armhf libfontconfig1:armhf libxcb1:armhf"
-if [ -n "$QEMU_USER_CMD" ]; then
-  # Likely cross-compiling, so install the needed gcc and qemu-user
-  export PACKAGES="$PACKAGES qemu-user"
+echo ">> Setting up environment for Bitnion build on ARM..."
+
+# Install dependencies for ARM (Debian/Arch variants)
+if command -v apt-get >/dev/null 2>&1; then
+  apt-get update
+  DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential libtool autotools-dev automake pkg-config bsdmainutils curl git ca-certificates
+elif command -v pacman >/dev/null 2>&1; then
+  pacman -Sy --noconfirm base-devel curl git pkgconf
+else
+  echo "Unsupported package manager. Please install dependencies manually."
+  exit 1
 fi
-export CONTAINER_NAME=ci_arm_linux
-# Use debian to avoid 404 apt errors when cross compiling
-export DOCKER_NAME_TAG="debian:buster"
-export USE_BUSY_BOX=true
-export RUN_UNIT_TESTS=true
-export RUN_FUNCTIONAL_TESTS=false
-export GOAL="install"
-# -Wno-psabi is to disable ABI warnings: "note: parameter passing for argument of type ... changed in GCC 7.1"
-# This could be removed once the ABI change warning does not show up by default
-export BITCOIN_CONFIG="--enable-glibc-back-compat --enable-reduce-exports CXXFLAGS=-Wno-psabi --enable-werror --with-boost-process"
+
+# Set build environment variables
+export CC=clang
+export CXX=clang++
+export CONFIG_SITE=$PWD/depends/arm-linux-gnueabihf/share/config.site
+
+# Confirm architecture
+uname -a
+lscpu || true
+
+echo ">> Environment setup for Bitnion on ARM completed."

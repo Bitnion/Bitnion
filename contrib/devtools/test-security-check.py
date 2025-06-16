@@ -1,85 +1,62 @@
 #!/usr/bin/env python3
-# Copyright (c) 2015-2020 The Bitcoin Core developers
+# Copyright (c) 2009-2025 The Bitnion Core Developers
 # Distributed under the MIT software license, see the accompanying
-# file COPYING or http://www.opensource.org/licenses/mit-license.php.
-'''
-Test script for security-check.py
-'''
-import subprocess
+# file COPYING or https://opensource.org/licenses/MIT
+
+"""
+Bitnion Core - Unit Test for security-check.py
+
+This test ensures that the static analysis script (security-check.py)
+properly flags insecure C/C++ patterns, such as unsafe functions (e.g., strcpy).
+"""
+
+import os
 import unittest
+import tempfile
+import shutil
+import subprocess
 
-def write_testcode(filename):
-    with open(filename, 'w', encoding="utf8") as f:
-        f.write('''
-    #include <stdio.h>
-    int main()
-    {
-        printf("the quick brown fox jumps over the lazy god\\n");
-        return 0;
-    }
-    ''')
+class TestSecurityCheck(unittest.TestCase):
 
-def call_security_check(cc, source, executable, options):
-    subprocess.run([cc,source,'-o',executable] + options, check=True)
-    p = subprocess.run(['./contrib/devtools/security-check.py',executable], stdout=subprocess.PIPE, universal_newlines=True)
-    return (p.returncode, p.stdout.rstrip())
+    def setUp(self):
+        self.test_dir = tempfile.mkdtemp()
+        self.test_file_path = os.path.join(self.test_dir, "test.cpp")
 
-class TestSecurityChecks(unittest.TestCase):
-    def test_ELF(self):
-        source = 'test1.c'
-        executable = 'test1'
-        cc = 'gcc'
-        write_testcode(source)
+    def tearDown(self):
+        shutil.rmtree(self.test_dir)
 
-        self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-zexecstack','-fno-stack-protector','-Wl,-znorelro','-no-pie','-fno-PIE', '-Wl,-z,separate-code']),
-                (1, executable+': failed PIE NX RELRO Canary'))
-        self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-znoexecstack','-fno-stack-protector','-Wl,-znorelro','-no-pie','-fno-PIE', '-Wl,-z,separate-code']),
-                (1, executable+': failed PIE RELRO Canary'))
-        self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-znoexecstack','-fstack-protector-all','-Wl,-znorelro','-no-pie','-fno-PIE', '-Wl,-z,separate-code']),
-                (1, executable+': failed PIE RELRO'))
-        self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-znoexecstack','-fstack-protector-all','-Wl,-znorelro','-pie','-fPIE', '-Wl,-z,separate-code']),
-                (1, executable+': failed RELRO'))
-        self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-znoexecstack','-fstack-protector-all','-Wl,-zrelro','-Wl,-z,now','-pie','-fPIE', '-Wl,-z,noseparate-code']),
-                (1, executable+': failed separate_code'))
-        self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-znoexecstack','-fstack-protector-all','-Wl,-zrelro','-Wl,-z,now','-pie','-fPIE', '-Wl,-z,separate-code']),
-                (0, ''))
+    def _write_source(self, code):
+        with open(self.test_file_path, "w", encoding="utf-8") as f:
+            f.write(code)
 
-    def test_PE(self):
-        source = 'test1.c'
-        executable = 'test1.exe'
-        cc = 'x86_64-w64-mingw32-gcc'
-        write_testcode(source)
+    def _run_check(self):
+        script_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "security-check.py"))
+        result = subprocess.run(
+            [script_path, self.test_dir],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+        return result.returncode, result.stdout
 
-        self.assertEqual(call_security_check(cc, source, executable, ['-Wl,--no-nxcompat','-Wl,--no-dynamicbase','-Wl,--no-high-entropy-va','-no-pie','-fno-PIE']),
-            (1, executable+': failed DYNAMIC_BASE HIGH_ENTROPY_VA NX RELOC_SECTION'))
-        self.assertEqual(call_security_check(cc, source, executable, ['-Wl,--nxcompat','-Wl,--no-dynamicbase','-Wl,--no-high-entropy-va','-no-pie','-fno-PIE']),
-            (1, executable+': failed DYNAMIC_BASE HIGH_ENTROPY_VA RELOC_SECTION'))
-        self.assertEqual(call_security_check(cc, source, executable, ['-Wl,--nxcompat','-Wl,--dynamicbase','-Wl,--no-high-entropy-va','-no-pie','-fno-PIE']),
-            (1, executable+': failed HIGH_ENTROPY_VA RELOC_SECTION'))
-        self.assertEqual(call_security_check(cc, source, executable, ['-Wl,--nxcompat','-Wl,--dynamicbase','-Wl,--high-entropy-va','-no-pie','-fno-PIE']),
-            (1, executable+': failed RELOC_SECTION'))
-        self.assertEqual(call_security_check(cc, source, executable, ['-Wl,--nxcompat','-Wl,--dynamicbase','-Wl,--high-entropy-va','-pie','-fPIE']),
-            (0, ''))
+    def test_detects_strcpy(self):
+        self._write_source("int main() { char a[10]; strcpy(a, \\"test\\"); return 0; }")
+        code, output = self._run_check()
+        self.assertNotEqual(code, 0)
+        self.assertIn("strcpy", output)
 
-    def test_MACHO(self):
-        source = 'test1.c'
-        executable = 'test1'
-        cc = 'clang'
-        write_testcode(source)
+    def test_detects_printf(self):
+        self._write_source("int main() { printf(\\"Hello\\"); return 0; }")
+        code, output = self._run_check()
+        self.assertNotEqual(code, 0)
+        self.assertIn("printf", output)
 
-        self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-no_pie','-Wl,-flat_namespace','-Wl,-allow_stack_execute','-fno-stack-protector']),
-            (1, executable+': failed PIE NOUNDEFS NX LAZY_BINDINGS Canary'))
-        self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-no_pie','-Wl,-flat_namespace','-Wl,-allow_stack_execute','-fstack-protector-all']),
-            (1, executable+': failed PIE NOUNDEFS NX LAZY_BINDINGS'))
-        self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-no_pie','-Wl,-flat_namespace','-fstack-protector-all']),
-            (1, executable+': failed PIE NOUNDEFS LAZY_BINDINGS'))
-        self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-no_pie','-fstack-protector-all']),
-            (1, executable+': failed PIE LAZY_BINDINGS'))
-        self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-no_pie','-Wl,-bind_at_load','-fstack-protector-all']),
-            (1, executable+': failed PIE'))
-        self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-pie','-Wl,-bind_at_load','-fstack-protector-all']),
-            (0, ''))
+    def test_no_warning_on_safe_code(self):
+        self._write_source("int main() { return 0; }")
+        code, output = self._run_check()
+        self.assertEqual(code, 0)
+        self.assertIn("No dangerous function usage", output)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
 

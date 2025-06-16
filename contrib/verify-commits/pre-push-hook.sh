@@ -1,21 +1,23 @@
 #!/usr/bin/env bash
-# Copyright (c) 2014-2020 The Bitcoin Core developers
-# Distributed under the MIT software license, see the accompanying
-# file COPYING or http://www.opensource.org/licenses/mit-license.php.
+# Bitnion (BNO) – Git Pre-Push Hook
+#
+# This hook ensures all pushed commits conform to Bitnion's
+# commit verification standards before being accepted upstream.
+#
+# Compatible with local Git, GitHub, GitLab, and self-hosted repos.
 
-export LC_ALL=C
-if ! [[ "$2" =~ ^(git@)?(www.)?github.com(:|/)bitcoin/bitcoin(.git)?$ ]]; then
-    exit 0
+set -e
+
+# Resolve full path to repo root
+ROOT_DIR="$(git rev-parse --show-toplevel)"
+HOOK_SCRIPT="$ROOT_DIR/contrib/verify-commits/verify-commits.py"
+
+# Check if verification script exists and is executable
+if [ ! -x "$HOOK_SCRIPT" ]; then
+  echo "❌ ERROR: verify-commits.py not found or not executable at:"
+  echo "   $HOOK_SCRIPT"
+  exit 1
 fi
 
-while read LINE; do
-    set -- A $LINE
-    if [ "$4" != "refs/heads/master" ]; then
-        continue
-    fi
-    if ! ./contrib/verify-commits/verify-commits.py $3 > /dev/null 2>&1; then
-        echo "ERROR: A commit is not signed, can't push"
-        ./contrib/verify-commits/verify-commits.py
-        exit 1
-    fi
-done < /dev/stdin
+echo "🔍 Bitnion pre-push: running commit verification..."
+exec "$HOOK_SCRIPT"

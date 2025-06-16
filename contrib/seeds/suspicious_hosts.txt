@@ -1,16 +1,33 @@
-130.211.129.106
-148.251.238.178
-176.9.46.6
-178.63.107.226
-54.173.72.127
-54.174.10.182
-54.183.64.54
-54.194.231.211
-54.66.214.167
-54.66.220.137
-54.67.33.14
-54.77.251.214
-54.94.195.96
-54.94.200.247
-83.81.130.26
-88.198.17.7
+# Bitnion (BNO) – Suspicious Hosts List
+#
+# This file contains a list of IP addresses or DNS entries that should be
+# excluded from seed node generation. These entries may be associated with:
+#
+# ▪ Malicious activity (e.g. spamming, flooding, double-spending)
+# ▪ Misconfigured nodes that relay invalid blocks or transactions
+# ▪ Known Sybil attacks or DoS sources
+# ▪ Nodes violating Bitnion’s protocol consistency or block rules
+#
+# This list is manually maintained by the Bitnion Core Team and contributors.
+# It is consulted by both `generate-seeds.py` and `makeseeds.py` scripts
+# to prevent inclusion of bad actors in the hardcoded DNS seeds.
+#
+# Format: one IP address or domain per line.
+# Comments begin with '#' and are ignored.
+
+# Example entries:
+185.199.110.153
+212.47.229.1
+fake-node.badactor.com
+10.0.0.0/8
+192.168.0.0/16
+
+# Suspicious patterns (optional):
+# *.tor-exit-node.org
+# *.vpn-no-logging.net
+
+# NOTE:
+# Do not add peers here based on opinion or geography.
+# Only add if there is clear evidence or multiple incidents reported.
+
+# Contact: bitnion@gmail.com for reports or removals.

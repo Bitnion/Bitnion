@@ -1,35 +1,26 @@
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <UsingTask
-    TaskName="ReplaceInFile"
-    TaskFactory="CodeTaskFactory"
-    AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll" >
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <!-- Bitnion MSBuild Target: ReplaceInFile -->
+
+  <UsingTask TaskName="ReplaceInFile" TaskFactory="CodeTaskFactory"
+             AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
     <ParameterGroup>
-        <FilePath Required="true" />
-        <Replace Required="true" />
-        <By Required="false" />
-        <ToFullPath Required="false" />
+      <FilePath ParameterType="System.String" Required="true" />
+      <OldText ParameterType="System.String" Required="true" />
+      <NewText ParameterType="System.String" Required="true" />
     </ParameterGroup>
     <Task>
-      <Using Namespace="System"/>
-      <Using Namespace="System.IO"/>
+      <Using Namespace="System" />
+      <Using Namespace="System.IO" />
       <Code Type="Fragment" Language="cs">
-<![CDATA[
-if(File.Exists(FilePath) == false) {
-    Log.LogError("replaceinfile task could not locate " + FilePath + ".");
-}
-else {
-    var data = File.ReadAllText(FilePath);
-    var by = By;
-    if (ToFullPath == "true")
-    {
-       by = Path.GetFullPath(by);
-    }
-    data = data.Replace(Replace, by);
-    Log.LogMessage("Replace '" + Replace + "' by '" + by + "' in " + FilePath);
-    File.WriteAllText(FilePath, data, new System.Text.UTF8Encoding(false));
-}
-]]>
+        <![CDATA[
+        string content = File.ReadAllText(FilePath);
+        content = content.Replace(OldText, NewText);
+        File.WriteAllText(FilePath, content);
+        ]]>
       </Code>
     </Task>
   </UsingTask>
+
 </Project>

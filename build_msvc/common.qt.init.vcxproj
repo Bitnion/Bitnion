@@ -1,16 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
 
-  <PropertyGroup Label="QtGlobals">
-    <QtBaseDir>C:\Qt5.9.8_x64_static_vs2019</QtBaseDir>
-    <QtPluginsLibraryDir>$(QtBaseDir)\plugins</QtPluginsLibraryDir>
-    <QtLibraryDir>$(QtBaseDir)\lib</QtLibraryDir>
-    <QtIncludeDir>$(QtBaseDir)\include</QtIncludeDir>
-    <QtIncludes>$(QtIncludeDir);$(QtIncludeDir)\QtNetwork;$(QtIncludeDir)\QtCore;$(QtIncludeDir)\QtWidgets;$(QtIncludeDir)\QtGui;</QtIncludes>
-    <GeneratedFilesOutDir>.\QtGeneratedFiles\qt</GeneratedFilesOutDir>
-    <QtToolsDir>$(QtBaseDir)\bin</QtToolsDir>
-    <QtReleaseLibraries>$(QtPluginsLibraryDir)\platforms\qminimal.lib;$(QtPluginsLibraryDir)\platforms\qwindows.lib;$(QtLibraryDir)\qtfreetype.lib;$(QtLibraryDir)\qtharfbuzz.lib;$(QtLibraryDir)\qtlibpng.lib;$(QtLibraryDir)\qtpcre2.lib;$(QtLibraryDir)\Qt5AccessibilitySupport.lib;$(QtLibraryDir)\Qt5Core.lib;$(QtLibraryDir)\Qt5Concurrent.lib;$(QtLibraryDir)\Qt5EventDispatcherSupport.lib;$(QtLibraryDir)\Qt5FontDatabaseSupport.lib;$(QtLibraryDir)\Qt5Gui.lib;$(QtLibraryDir)\Qt5Network.lib;$(QtLibraryDir)\Qt5PlatformCompositorSupport.lib;$(QtLibraryDir)\Qt5ThemeSupport.lib;$(QtLibraryDir)\Qt5Widgets.lib;$(QtLibraryDir)\Qt5WinExtras.lib;$(QtLibraryDir)\qtmain.lib;userenv.lib;netapi32.lib;imm32.lib;Dwmapi.lib;version.lib;winmm.lib;UxTheme.lib</QtReleaseLibraries>
-    <QtDebugLibraries>$(QtPluginsLibraryDir)\platforms\qwindowsd.lib;$(QtPluginsLibraryDir)\platforms\qminimald.lib;$(QtLibraryDir)\*d.lib;crypt32.lib;userenv.lib;netapi32.lib;imm32.lib;Dwmapi.lib;version.lib;winmm.lib;UxTheme.lib</QtDebugLibraries>
+  <PropertyGroup Label="UserMacros" />
+
+  <PropertyGroup>
+    <Qt5Version>5.15.2</Qt5Version>
+    <Qt5Dir>$(QTDIR)</Qt5Dir>
+
+    <OutDir>$(SolutionDir)build\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)build\intermediate\$(ProjectName)\</IntDir>
+
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+
+    <PreprocessorDefinitions>
+      WIN32;NDEBUG;_WINDOWS;QT_GUI_LIB;QT_WIDGETS_LIB;HAVE_CONFIG_H;%(PreprocessorDefinitions)
+    </PreprocessorDefinitions>
+
+    <AdditionalIncludeDirectories>
+      $(Qt5Dir)\include;
+      $(Qt5Dir)\include\QtCore;
+      $(Qt5Dir)\include\QtWidgets;
+      $(Qt5Dir)\include\QtGui;
+      $(SolutionDir)..\src;
+      $(SolutionDir)..\src\qt;
+      $(SolutionDir)..\src\config;
+      %(AdditionalIncludeDirectories)
+    </AdditionalIncludeDirectories>
+
+    <LibraryPath>
+      $(Qt5Dir)\lib;
+      %(LibraryPath)
+    </LibraryPath>
+
+    <ExecutablePath>
+      $(Qt5Dir)\bin;
+      %(ExecutablePath)
+    </ExecutablePath>
+
+    <ReferencePath>
+      $(Qt5Dir)\lib;
+      %(ReferencePath)
+    </ReferencePath>
   </PropertyGroup>
 
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>
+        Qt5Widgets.lib;
+        Qt5Gui.lib;
+        Qt5Core.lib;
+        user32.lib;
+        gdi32.lib;
+        shell32.lib;
+        ws2_32.lib;
+        %(AdditionalDependencies)
+      </AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
 </Project>

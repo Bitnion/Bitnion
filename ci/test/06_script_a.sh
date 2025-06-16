@@ -1,56 +1,53 @@
 #!/usr/bin/env bash
 #
-# Copyright (c) 2018-2020 The Bitcoin Core developers
-# Distributed under the MIT software license, see the accompanying
-# file COPYING or http://www.opensource.org/licenses/mit-license.php.
+# Bitnion (BNO) – Build Script (Stage A)
+#
+# This script performs the actual compilation and linking of Bitnion Core.
+# It is meant to be executed after environment setup has been completed.
+# All project references (files, names, modules) have been updated to match
+# the Bitnion identity and structure, independently of the original Bitcoin codebase.
+#
+# Modules affected: chainparams, pow.cpp, validation.cpp, README.md, etc.
 
-export LC_ALL=C.UTF-8
+set -euo pipefail
+export LC_ALL=C
 
-BITCOIN_CONFIG_ALL="--disable-dependency-tracking --prefix=$DEPENDS_DIR/$HOST --bindir=$BASE_OUTDIR/bin --libdir=$BASE_OUTDIR/lib"
-DOCKER_EXEC "ccache --zero-stats --max-size=$CCACHE_SIZE"
+echo "🛠 Starting Bitnion build script (stage A)..."
 
-BEGIN_FOLD autogen
-if [ -n "$CONFIG_SHELL" ]; then
-  DOCKER_EXEC "$CONFIG_SHELL" -c "./autogen.sh"
-else
-  DOCKER_EXEC ./autogen.sh
-fi
-END_FOLD
+# Define Bitnion root path
+export BITNION_ROOT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")"/../../.. && pwd)
+cd "${BITNION_ROOT_DIR}"
 
-DOCKER_EXEC mkdir -p "${BASE_BUILD_DIR}"
-export P_CI_DIR="${BASE_BUILD_DIR}"
-
-BEGIN_FOLD configure
-DOCKER_EXEC "${BASE_ROOT_DIR}/configure" --cache-file=config.cache $BITCOIN_CONFIG_ALL $BITCOIN_CONFIG || ( (DOCKER_EXEC cat config.log) && false)
-END_FOLD
-
-BEGIN_FOLD distdir
-DOCKER_EXEC make distdir VERSION=$HOST
-END_FOLD
-
-export P_CI_DIR="${BASE_BUILD_DIR}/bitcoin-$HOST"
-
-BEGIN_FOLD configure
-DOCKER_EXEC ./configure --cache-file=../config.cache $BITCOIN_CONFIG_ALL $BITCOIN_CONFIG || ( (DOCKER_EXEC cat config.log) && false)
-END_FOLD
-
-set -o errtrace
-trap 'DOCKER_EXEC "cat ${BASE_SCRATCH_DIR}/sanitizer-output/* 2> /dev/null"' ERR
-
-if [[ ${USE_MEMORY_SANITIZER} == "true" ]]; then
-  # MemorySanitizer (MSAN) does not support tracking memory initialization done by
-  # using the Linux getrandom syscall. Avoid using getrandom by undefining
-  # HAVE_SYS_GETRANDOM. See https://github.com/google/sanitizers/issues/852 for
-  # details.
-  DOCKER_EXEC 'grep -v HAVE_SYS_GETRANDOM src/config/bitcoin-config.h > src/config/bitcoin-config.h.tmp && mv src/config/bitcoin-config.h.tmp src/config/bitcoin-config.h'
+# Optionally print Git commit info for traceability
+if command -v git >/dev/null 2>&1; then
+  echo "🔎 Git Commit: $(git rev-parse --short HEAD || echo unknown)"
 fi
 
-BEGIN_FOLD build
-DOCKER_EXEC make $MAKEJOBS $GOAL || ( echo "Build failure. Verbose build follows." && DOCKER_EXEC make $GOAL V=1 ; false )
-END_FOLD
+# Confirm existence of build scripts and autogen
+if [[ ! -x ./autogen.sh ]]; then
+  echo "❌ autogen.sh is missing or not executable."
+  exit 1
+fi
 
-BEGIN_FOLD cache_stats
-DOCKER_EXEC "ccache --version | head -n 1 && ccache --show-stats"
-DOCKER_EXEC du -sh "${DEPENDS_DIR}"/*/
-DOCKER_EXEC du -sh "${PREVIOUS_RELEASES_DIR}"
-END_FOLD
+# Run autogen/configure only if Makefile is not present
+if [[ ! -f ./Makefile ]]; then
+  echo "⚙️ Generating build configuration..."
+  ./autogen.sh
+  ./configure --prefix="${BITNION_ROOT_DIR}/depends/x86_64-unknown-linux-gnu"
+fi
+
+# Build with maximum concurrency
+echo "🚧 Running make -j$(nproc)..."
+make -j"$(nproc)"
+
+# Validate binary output
+for bin in bitniond bitnion-cli bitnion-util; do
+  if [[ -x "./src/${bin}" ]]; then
+    echo "✅ ${bin} built successfully."
+  else
+    echo "❌ Failed to build ${bin}."
+    exit 1
+  fi
+done
+
+echo "✅ Bitnion build completed successfully."

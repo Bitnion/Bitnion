@@ -1,18 +1,25 @@
 #!/usr/bin/env bash
-#
-# Copyright (c) 2019-2020 The Bitcoin Core developers
-# Distributed under the MIT software license, see the accompanying
-# file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-export LC_ALL=C.UTF-8
+set -euxo pipefail
 
-export HOST=x86_64-apple-darwin16
-export PIP_PACKAGES="zmq"
-export GOAL="install"
-export BITCOIN_CONFIG="--with-gui --enable-reduce-exports --enable-werror --with-boost-process"
-export CI_OS_NAME="macos"
-export NO_DEPENDS=1
-export OSX_SDK=""
-export CCACHE_SIZE=300M
+echo ">> Setting up environment for Bitnion build on macOS host..."
 
-export RUN_SECURITY_TESTS="true"
+# Check for Homebrew and install if missing
+if ! command -v brew >/dev/null 2>&1; then
+  echo "Homebrew not found. Installing Homebrew..."
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+fi
+
+# Update and install required packages
+brew update
+brew install autoconf automake libtool pkg-config coreutils cmake git
+
+# Set environment variables for compiler and build system
+export CC=clang
+export CXX=clang++
+
+# Confirm build system
+uname -a
+sw_vers || true
+
+echo ">> Environment setup for Bitnion on macOS completed."

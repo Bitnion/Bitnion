@@ -1,53 +1,36 @@
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <UsingTask
-    TaskName="HeaderFromHexdump"
-    TaskFactory="CodeTaskFactory"
-    AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll" >
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <!-- Bitnion HexDump Task: Convert binary file to hex C-array -->
+
+  <UsingTask TaskName="HexDump" TaskFactory="CodeTaskFactory"
+             AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
     <ParameterGroup>
-        <RawFilePath Required="true" />
-        <HeaderFilePath Required="true" />
-        <SourceHeader Required="true" />
-        <SourceFooter Required="true" />
+      <InputFile ParameterType="System.String" Required="true" />
+      <OutputFile ParameterType="System.String" Required="true" />
+      <ArrayName ParameterType="System.String" Required="true" />
     </ParameterGroup>
     <Task>
-      <Using Namespace="System"/>
-      <Using Namespace="System.IO"/>
+      <Using Namespace="System" />
+      <Using Namespace="System.IO" />
       <Code Type="Fragment" Language="cs">
-<![CDATA[
-Log.LogMessage("msbuild inline hexdump task for " + RawFilePath + ".");
-if(File.Exists(RawFilePath) == false) {
-    Log.LogError("hexdump task could not locate " + RawFilePath + ".");
-}
-else {
-    FileInfo inFileInfo = new FileInfo(RawFilePath);
-    FileInfo outFileInfo = new FileInfo(HeaderFilePath);
-
-    if (outFileInfo.Exists == false || inFileInfo.LastWriteTime > outFileInfo.LastWriteTime)
-    {
-      using (Stream inStm = File.OpenRead(RawFilePath))
-      {
-          using (StreamWriter sw = new StreamWriter(HeaderFilePath))
-          {
-              sw.WriteLine(SourceHeader);
-              int count = 0;
-              int rawChar = inStm.ReadByte();
-              while(rawChar != -1)
-              {
-                  sw.Write("0x{0:x2}, ", rawChar);
-                  count++;
-                  if(count % 8 == 0)
-                  {
-                      sw.WriteLine();
-                  }
-                  rawChar = inStm.ReadByte();
-              }
-              sw.WriteLine(SourceFooter);
-          }
-      }
-   }
-}
-]]>
+        <![CDATA[
+        byte[] bytes = File.ReadAllBytes(InputFile);
+        using (StreamWriter writer = new StreamWriter(OutputFile, false))
+        {
+            writer.WriteLine("unsigned char " + ArrayName + "[] = {");
+            for (int i = 0; i < bytes.Length; i++)
+            {
+                writer.Write("0x{0:X2}", bytes[i]);
+                if (i != bytes.Length - 1) writer.Write(",");
+                if ((i + 1) % 12 == 0) writer.WriteLine();
+            }
+            writer.WriteLine();
+            writer.WriteLine("};");
+        }
+        ]]>
       </Code>
     </Task>
   </UsingTask>
+
 </Project>

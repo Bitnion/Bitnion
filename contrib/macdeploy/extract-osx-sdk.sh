@@ -1,34 +1,56 @@
 #!/usr/bin/env bash
-# Copyright (c) 2016-2020 The Bitcoin Core developers
-# Distributed under the MIT software license, see the accompanying
-# file COPYING or http://www.opensource.org/licenses/mit-license.php.
+#
+# extract-osx-sdk.sh — Bitnion macOS SDK Extractor
+#
+# This script extracts the macOS SDK from an Xcode installation or
+# manually downloaded SDK .dmg or .tar.gz archive.
+#
+# It is intended to be used for cross-compiling Bitnion Core on Linux.
+#
+# License: MIT
+# Adapted from Bitcoin Core's contrib/macdeploy/extract-osx-sdk.sh
 
-export LC_ALL=C
 set -e
 
-INPUTFILE="Xcode_7.3.1.dmg"
-HFSFILENAME="5.hfs"
-SDKDIR="Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk"
+SDK_ARCHIVE=""
+SDK_DIR="MacOSX10.11.sdk"
+TARGET_DIR="$(pwd)/sdk"
 
-7z x "${INPUTFILE}" "${HFSFILENAME}"
-SDKNAME="$(basename "${SDKDIR}")"
-SDKDIRINODE=$(ifind -n "${SDKDIR}" "${HFSFILENAME}")
-fls "${HFSFILENAME}" -rpF ${SDKDIRINODE} |
- while read type inode filename; do
-	inode="${inode::-1}"
-	if [ "${filename:0:14}" = "usr/share/man/" ]; then
-		continue
-	fi
-	filename="${SDKNAME}/$filename"
-	echo "Extracting $filename ..."
-	mkdir -p "$(dirname "$filename")"
-	if [ "$type" = "l/l" ]; then
-		ln -s "$(icat "${HFSFILENAME}" $inode)" "$filename"
-	else
-		icat "${HFSFILENAME}" $inode >"$filename"
-	fi
-done
-echo "Building ${SDKNAME}.tar.gz ..."
-MTIME="$(istat "${HFSFILENAME}" "${SDKDIRINODE}" | perl -nle 'm/Content Modified:\s+(.*?)\s\(/ && print $1')"
-find "${SDKNAME}" | sort | tar --no-recursion --mtime="${MTIME}" --mode='u+rw,go+r-w,a+X' --owner=0 --group=0 -c -T - | gzip -9n > "${SDKNAME}.tar.gz"
-echo 'All done!'
+echo "[*] Bitnion SDK Extractor for macOS cross-compilation"
+
+if [[ $# -ne 1 ]]; then
+    echo "Usage: $0 <path-to-Xcode-SDK-archive>"
+    echo "Example: ./extract-osx-sdk.sh ~/Downloads/Xcode-SDKs/MacOSX10.11.sdk.tar.gz"
+    exit 1
+fi
+
+SDK_ARCHIVE="$1"
+
+if [[ ! -f "$SDK_ARCHIVE" ]]; then
+    echo "[!] Error: File not found: $SDK_ARCHIVE"
+    exit 1
+fi
+
+echo "[+] Extracting SDK archive: $SDK_ARCHIVE"
+mkdir -p "$TARGET_DIR"
+
+if [[ "$SDK_ARCHIVE" == *.tar.gz ]]; then
+    tar -xzvf "$SDK_ARCHIVE" -C "$TARGET_DIR"
+elif [[ "$SDK_ARCHIVE" == *.dmg ]]; then
+    echo "[*] Mounting DMG..."
+    MOUNT_DIR=$(hdiutil attach "$SDK_ARCHIVE" | grep Volumes | awk '{print $3}')
+    if [[ -z "$MOUNT_DIR" ]]; then
+        echo "[!] Failed to mount DMG."
+        exit 1
+    fi
+    echo "[+] Copying SDK from DMG..."
+    cp -a "$MOUNT_DIR/$SDK_DIR" "$TARGET_DIR/"
+    hdiutil detach "$MOUNT_DIR"
+else
+    echo "[!] Unsupported SDK format: $SDK_ARCHIVE"
+    exit 1
+fi
+
+echo "[✓] SDK extracted to: $TARGET_DIR/$SDK_DIR"
+echo
+echo "You can now use this SDK to cross-compile Bitnion Core with osxcross or depends."

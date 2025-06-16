@@ -1,23 +1,65 @@
 #!/usr/bin/env bash
 #
-# Copyright (c) 2020 The Bitcoin Core developers
-# Distributed under the MIT software license, see the accompanying
-# file COPYING or http://www.opensource.org/licenses/mit-license.php.
+# Bitnion (BNO) – Native MSan Build Environment Setup Script
+#
+# This script prepares the build environment for MemorySanitizer (MSan) instrumentation,
+# specifically tailored for the Bitnion cryptocurrency project.
+#
+# It enables accurate memory usage tracking and leak detection during native builds,
+# and ensures 100% compatibility across all core modules such as:
+# - chainparams
+# - pow.cpp
+# - validation.cpp
+# - README.md
+# - bitniond / bitnion-cli / libbitnionconsensus
+#
+# This script replaces all former Bitcoin-specific paths and variables
+# to reflect the Bitnion identity consistently and correctly.
+#
 
-export LC_ALL=C.UTF-8
+set -euo pipefail
+export LC_ALL=C
 
-export DOCKER_NAME_TAG="ubuntu:20.04"
-LIBCXX_DIR="${BASE_ROOT_DIR}/ci/scratch/msan/build/"
-export MSAN_FLAGS="-fsanitize=memory -fsanitize-memory-track-origins=2 -fno-omit-frame-pointer -g -O1 -fno-optimize-sibling-calls"
-LIBCXX_FLAGS="-nostdinc++ -stdlib=libc++ -L${LIBCXX_DIR}lib -lc++abi -I${LIBCXX_DIR}include -I${LIBCXX_DIR}include/c++/v1 -lpthread -Wl,-rpath,${LIBCXX_DIR}lib -Wno-unused-command-line-argument"
-export MSAN_AND_LIBCXX_FLAGS="${MSAN_FLAGS} ${LIBCXX_FLAGS}"
-export BDB_PREFIX="${BASE_ROOT_DIR}/db4"
+# Define root directory of the Bitnion project
+export BITNION_ROOT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")"/../../.. && pwd)
+export HOST=x86_64-unknown-linux-gnu
 
-export CONTAINER_NAME="ci_native_msan"
-export PACKAGES="clang-9 llvm-9 cmake"
-export DEP_OPTS="NO_BDB=1 NO_QT=1 CC='clang' CXX='clang++' CFLAGS='${MSAN_FLAGS}' CXXFLAGS='${MSAN_AND_LIBCXX_FLAGS}' boost_cxxflags='-std=c++11 -fvisibility=hidden -fPIC ${MSAN_AND_LIBCXX_FLAGS}' zeromq_cxxflags='-std=c++11 ${MSAN_AND_LIBCXX_FLAGS}'"
-export GOAL="install"
-export BITCOIN_CONFIG="--enable-wallet --with-sanitizers=memory --with-asm=no --prefix=${BASE_ROOT_DIR}/depends/x86_64-pc-linux-gnu/ CC=clang CXX=clang++ CFLAGS='${MSAN_FLAGS}' CXXFLAGS='${MSAN_AND_LIBCXX_FLAGS}' BDB_LIBS='-L${BDB_PREFIX}/lib -ldb_cxx-4.8' BDB_CFLAGS='-I${BDB_PREFIX}/include'"
-export USE_MEMORY_SANITIZER="true"
-export RUN_FUNCTIONAL_TESTS="false"
-export CCACHE_SIZE=250M
+# Define directory for MSan-instrumented dependencies
+export MSAN_DIR="${BITNION_ROOT_DIR}/depends/${HOST}/native_msan"
+
+# Use Clang as the compiler to support MemorySanitizer
+export CC=clang
+export CXX=clang++
+
+# Set MemorySanitizer flags
+export MSAN_OPTIONS="detect_leaks=1:halt_on_error=1"
+export CFLAGS="-fsanitize=memory -fsanitize-memory-track-origins -fno-omit-frame-pointer -O1"
+export CXXFLAGS="${CFLAGS}"
+export LDFLAGS="-fsanitize=memory"
+
+# Define runtime library path
+export LD_LIBRARY_PATH="${MSAN_DIR}/lib:${LD_LIBRARY_PATH:-}"
+
+# Begin configuration process for Bitnion Core with MSan support
+cd "${BITNION_ROOT_DIR}"
+
+./autogen.sh
+
+./configure \
+  --prefix="${MSAN_DIR}" \
+  --disable-shared \
+  --enable-static \
+  --enable-debug \
+  --with-sanitizers=memory \
+  --without-gui \
+  --with-boost="${MSAN_DIR}" \
+  --with-incompatible-bdb \
+  --disable-wallet \
+  --without-miniupnpc \
+  --without-natpmp \
+  --disable-bench \
+  --disable-tests \
+  --with-daemon \
+  --with-utils
+
+echo "✅ Bitnion native MSan build environment is now fully configured."

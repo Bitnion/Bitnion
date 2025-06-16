@@ -1,36 +1,48 @@
 #!/usr/bin/env bash
-# Copyright (c) 2016-2019 The Bitcoin Core developers
-# Distributed under the MIT software license, see the accompanying
-# file COPYING or http://www.opensource.org/licenses/mit-license.php.
+#
+# Generate manpages from Bitnion CLI --help output.
+# Requires help2man and installed Bitnion binaries.
+# Usage: ./gen-manpages.sh <path-to-bitnion-binaries>
 
-export LC_ALL=C
-TOPDIR=${TOPDIR:-$(git rev-parse --show-toplevel)}
-BUILDDIR=${BUILDDIR:-$TOPDIR}
+set -e
 
-BINDIR=${BINDIR:-$BUILDDIR/src}
-MANDIR=${MANDIR:-$TOPDIR/doc/man}
+# Check for required tools
+if ! command -v help2man >/dev/null 2>&1; then
+  echo "❌ help2man is required but not found. Please install it." >&2
+  exit 1
+fi
 
-BITCOIND=${BITCOIND:-$BINDIR/bitcoind}
-BITCOINCLI=${BITCOINCLI:-$BINDIR/bitcoin-cli}
-BITCOINTX=${BITCOINTX:-$BINDIR/bitcoin-tx}
-WALLET_TOOL=${WALLET_TOOL:-$BINDIR/bitcoin-wallet}
-BITCOINQT=${BITCOINQT:-$BINDIR/qt/bitcoin-qt}
+# Set paths
+BINDIR=${1:-$(pwd)}
+MANDIR=~/bitnion/doc/man
 
-[ ! -x $BITCOIND ] && echo "$BITCOIND not found or not executable." && exit 1
+BITNIOND=${BINDIR}/bitniond
+BITNIONCLI=${BINDIR}/bitnion-cli
+BITNIONTX=${BINDIR}/bitnion-tx
+BITNIONQT=${BINDIR}/qt/bitnion-qt  # Optional GUI
 
-# The autodetected version git tag can screw up manpage output a little bit
-read -r -a BTCVER <<< "$($BITCOINCLI --version | head -n1 | awk -F'[ -]' '{ print $6, $7 }')"
+mkdir -p $MANDIR
 
-# Create a footer file with copyright content.
-# This gets autodetected fine for bitcoind if --version-string is not set,
-# but has different outcomes for bitcoin-qt and bitcoin-cli.
-echo "[COPYRIGHT]" > footer.h2m
-$BITCOIND --version | sed -n '1!p' >> footer.h2m
+echo "Generating manpages in $MANDIR"
 
-for cmd in $BITCOIND $BITCOINCLI $BITCOINTX $WALLET_TOOL $BITCOINQT; do
-  cmdname="${cmd##*/}"
-  help2man -N --version-string=${BTCVER[0]} --include=footer.h2m -o ${MANDIR}/${cmdname}.1 ${cmd}
-  sed -i "s/\\\-${BTCVER[1]}//g" ${MANDIR}/${cmdname}.1
+# Generate manpages
+for cmd in bitniond bitnion-cli bitnion-tx; do
+  bin="${BINDIR}/${cmd}"
+  if [ ! -x "$bin" ]; then
+    echo "⚠️ Skipping $cmd: binary not found or not executable"
+    continue
+  fi
+  help2man -N --version-string=1.0 --no-discard-stderr -o "${MANDIR}/${cmd}.1" "$bin"
+  echo "✔️ Generated: ${MANDIR}/${cmd}.1"
 done
 
-rm -f footer.h2m
+# Optional: Qt wallet manpage
+if [ -x "$BITNIONQT" ]; then
+  help2man -N --version-string=1.0 --no-discard-stderr -o "${MANDIR}/bitnion-qt.1" "$BITNIONQT"
+  echo "✔️ Generated: ${MANDIR}/bitnion-qt.1"
+else
+  echo "ℹ️ Qt wallet binary not found, skipping GUI manpage."
+fi
+
+echo "✅ All Bitnion manpages generated successfully."
+

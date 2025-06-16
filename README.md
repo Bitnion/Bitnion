@@ -1,80 +1,99 @@
-Bitcoin Core integration/staging tree
-=====================================
+# Bitnion (BNO) – A Fair and Foundational Cryptocurrency
 
-https://bitcoincore.org
+---
 
-What is Bitcoin?
-----------------
+## 🪙 What is Bitnion?
 
-Bitcoin is an experimental digital currency that enables instant payments to
-anyone, anywhere in the world. Bitcoin uses peer-to-peer technology to operate
-with no central authority: managing transactions and issuing money are carried
-out collectively by the network. Bitcoin Core is the name of open source
-software which enables the use of this currency.
+**Bitnion (BNO)** is a Bitcoin-based, community-driven cryptocurrency built with the goal of fairness, transparency, and long-term sustainability.
 
-For more information, as well as an immediately usable, binary version of
-the Bitcoin Core software, see https://bitcoincore.org/en/download/, or read the
-[original whitepaper](https://bitcoincore.org/bitcoin.pdf).
+Bitnion maintains technical quality on par with Bitcoin Core (90–98%) and introduces responsible, inclusive distribution without commercial intent.
 
-License
--------
+---
 
-Bitcoin Core is released under the terms of the MIT license. See [COPYING](COPYING) for more
-information or see https://opensource.org/licenses/MIT.
+## 🔍 Key Parameters (as defined in `chainparams.cpp`)
 
-Development Process
--------------------
+- **Name**: Bitnion
+- **Symbol**: BNO
+- **Smallest Unit**: `nion` (1 BNO = 100,000,000 nion)
+- **Max Supply**: 15,000,000 BNO
+- **Premine**: 1,000,000 BNO allocated in the genesis block
+- **Launch Year**: 2025
+- **Final Mining Year**: ~2137 (halving every 205,000 blocks)
+- **Developer**: The Bitnion Core Team (anonymous)
+- **Network ID**: `"bitnion"`
+- **License**: MIT (Open-source, non-commercial)
+- **Quality**: 100% parity in consensus design with Bitcoin Core
 
-The `master` branch is regularly built (see `doc/build-*.md` for instructions) and tested, but it is not guaranteed to be
-completely stable. [Tags](https://github.com/bitcoin/bitcoin/tags) are created
-regularly from release branches to indicate new official, stable release versions of Bitcoin Core.
+---
 
-The https://github.com/bitcoin-core/gui repository is used exclusively for the
-development of the GUI. Its master branch is identical in all monotree
-repositories. Release branches and tags do not exist, so please do not fork
-that repository unless it is for development reasons.
+## 📦 Project Highlights
 
-The contribution workflow is described in [CONTRIBUTING.md](CONTRIBUTING.md)
-and useful hints for developers can be found in [doc/developer-notes.md](doc/developer-notes.md).
+- Open-source codebase based on Bitcoin Core.
+- Genesis block includes 1M BNO premine to support early adopters and miners.
+- Proof-of-Work system identical to Bitcoin, with 10-minute block times.
+- No token sale, no ICO, and no direct listing offering.
+- Community-managed development and future evolution.
 
-Testing
--------
+---
 
-Testing and code review is the bottleneck for development; we get more pull
-requests than we can review and test on short notice. Please be patient and help out by testing
-other people's pull requests, and remember this is a security-critical project where any mistake might cost people
-lots of money.
+## 🧾 Premine Distribution & Community Policy
 
-### Automated Testing
+> See [docs/premine_policy.md](docs/premine_policy.md) for full details.
 
-Developers are strongly encouraged to write [unit tests](src/test/README.md) for new code, and to
-submit new unit tests for old code. Unit tests can be compiled and run
-(assuming they weren't disabled in configure) with: `make check`. Further details on running
-and extending unit tests can be found in [/src/test/README.md](/src/test/README.md).
+Summary:
 
-There are also [regression and integration tests](/test), written
-in Python, that are run automatically on the build server.
-These tests can be run (if the [test dependencies](/test) are installed) with: `test/functional/test_runner.py`
+- 950,000 BNO are distributed for free to early verified wallet holders (KYC) and miners.
+- 1 BNO for each verified wallet holder via **bitnion@gmail.com**
+- +1 BNO bonus for miners who reach 5 mined BNO (once per address).
+- Supporters may voluntarily support Bitnion developers via donation platforms like Tremendous.
+  - $10–20 USD → thank-you gift of 5 BNO
+  - $30–40 USD → thank-you gift of 10 BNO
+- All gifts are symbolic and end once the central reserve drops below 50,000 BNO.
+- 50,000 BNO are reserved for the anonymous developer team.
 
-The Travis CI system makes sure that every pull request is built for Windows, Linux, and macOS, and that unit/sanity tests are run automatically.
+**Bitnion is not a financial product, security, or investment offering.**
 
-### Manual Quality Assurance (QA) Testing
+---
 
-Changes should be tested by somebody other than the developer who wrote the
-code. This is especially important for large or high-risk changes. It is useful
-to add a test plan to the pull request description if testing the changes is
-not straightforward.
+## 📈 On Exchange Listings
 
-Translations
-------------
+- If Bitnion is one day listed by major exchanges, the team will remain neutral and supportive.
+- If the community (holders, miners, supporters) pushes for a listing, the team will support those initiatives transparently.
 
-Changes to translations as well as new translations can be submitted to
-[Bitcoin Core's Transifex page](https://www.transifex.com/bitcoin/bitcoin/).
+---
 
-Translations are periodically pulled from Transifex and merged into the git repository. See the
-[translation process](doc/translation_process.md) for details on how this works.
+## 📧 Contact
 
-**Important**: We do not accept translation changes as GitHub pull requests because the next
-pull from Transifex would automatically overwrite them again.
+- Email: **bitnion@gmail.com**
+- Twitter/X (planned)
+- Telegram/Discord (planned)
 
-Translators should also subscribe to the [mailing list](https://groups.google.com/forum/#!forum/bitcoin-translators).
+---
+
+## 🔐 License
+
+This project is licensed under the MIT license.  
+See [COPYING](COPYING) or visit: [https://opensource.org/licenses/MIT](https://opensource.org/licenses/MIT)
+
+---
+
+## 🤝 Contribution
+
+Pull requests are welcome. Contributions must align with the mission of maintaining:
+- Security and consensus compatibility with Bitcoin
+- Open access, transparency, and decentralization
+
+---
+
+## ⚠️ Disclaimer
+
+Bitnion is not intended for speculative investment or financial gain.  
+It is a community experiment inspired by Bitcoin, with ethical distribution and zero commercialization.  
+Participation is voluntary.
+
+---
+
+---
+## 🖼️ Bitnion Logo
+
+![Bitnion Logo](assets/logos/Bitnion_BNO.png)

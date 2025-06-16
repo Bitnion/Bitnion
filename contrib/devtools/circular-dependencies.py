@@ -1,91 +1,64 @@
 #!/usr/bin/env python3
-# Copyright (c) 2018-2019 The Bitcoin Core developers
+# Copyright (c) 2014-2025 The Bitnion Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+"""
+Detect circular dependencies in Bitnion C++ source files using include-what-you-use output.
+"""
+
+import os
 import sys
 import re
+import subprocess
+import networkx as nx
 
-MAPPING = {
-    'core_read.cpp': 'core_io.cpp',
-    'core_write.cpp': 'core_io.cpp',
-}
+IWYU_OUTPUT_FILE = "bitnion_iwyu.out"
 
-# Directories with header-based modules, where the assumption that .cpp files
-# define functions and variables declared in corresponding .h files is
-# incorrect.
-HEADER_MODULE_PATHS = [
-    'interfaces/'
-]
-
-def module_name(path):
-    if path in MAPPING:
-        path = MAPPING[path]
-    if any(path.startswith(dirpath) for dirpath in HEADER_MODULE_PATHS):
-        return path
-    if path.endswith(".h"):
-        return path[:-2]
-    if path.endswith(".c"):
-        return path[:-2]
-    if path.endswith(".cpp"):
-        return path[:-4]
-    return None
-
-files = dict()
-deps = dict()
-
-RE = re.compile("^#include <(.*)>")
-
-# Iterate over files, and create list of modules
-for arg in sys.argv[1:]:
-    module = module_name(arg)
-    if module is None:
-        print("Ignoring file %s (does not constitute module)\n" % arg)
-    else:
-        files[arg] = module
-        deps[module] = set()
-
-# Iterate again, and build list of direct dependencies for each module
-# TODO: implement support for multiple include directories
-for arg in sorted(files.keys()):
-    module = files[arg]
-    with open(arg, 'r', encoding="utf8") as f:
+def extract_dependencies(filename):
+    dependencies = []
+    with open(filename, "r", encoding="utf8") as f:
         for line in f:
-            match = RE.match(line)
+            match = re.match(r"^(.+?)\s+should include:\s+(.+)$", line)
             if match:
-                include = match.group(1)
-                included_module = module_name(include)
-                if included_module is not None and included_module in deps and included_module != module:
-                    deps[module].add(included_module)
+                source = match.group(1).strip()
+                target = match.group(2).strip()
+                dependencies.append((source, target))
+    return dependencies
 
-# Loop to find the shortest (remaining) circular dependency
-have_cycle = False
-while True:
-    shortest_cycle = None
-    for module in sorted(deps.keys()):
-        # Build the transitive closure of dependencies of module
-        closure = dict()
-        for dep in deps[module]:
-            closure[dep] = []
-        while True:
-            old_size = len(closure)
-            old_closure_keys = sorted(closure.keys())
-            for src in old_closure_keys:
-                for dep in deps[src]:
-                    if dep not in closure:
-                        closure[dep] = closure[src] + [src]
-            if len(closure) == old_size:
-                break
-        # If module is in its own transitive closure, it's a circular dependency; check if it is the shortest
-        if module in closure and (shortest_cycle is None or len(closure[module]) + 1 < len(shortest_cycle)):
-            shortest_cycle = [module] + closure[module]
-    if shortest_cycle is None:
-        break
-    # We have the shortest circular dependency; report it
-    module = shortest_cycle[0]
-    print("Circular dependency: %s" % (" -> ".join(shortest_cycle + [module])))
-    # And then break the dependency to avoid repeating in other cycles
-    deps[shortest_cycle[-1]] = deps[shortest_cycle[-1]] - set([module])
-    have_cycle = True
+def build_dependency_graph(dependencies):
+    graph = nx.DiGraph()
+    for source, target in dependencies:
+        graph.add_edge(source, target)
+    return graph
 
-sys.exit(1 if have_cycle else 0)
+def detect_cycles(graph):
+    try:
+        cycles = list(nx.simple_cycles(graph))
+        return cycles
+    except Exception as e:
+        print(f"Error detecting cycles: {e}")
+        return []
+
+def main():
+    if not os.path.exists(IWYU_OUTPUT_FILE):
+        print(f"Error: {IWYU_OUTPUT_FILE} not found. Please run include-what-you-use to generate it.")
+        sys.exit(1)
+
+    print("Analyzing include dependencies from:", IWYU_OUTPUT_FILE)
+    dependencies = extract_dependencies(IWYU_OUTPUT_FILE)
+    graph = build_dependency_graph(dependencies)
+    cycles = detect_cycles(graph)
+
+    if cycles:
+        print("\nDetected circular dependencies:")
+        for cycle in cycles:
+            print(" -> ".join(cycle))
+        sys.exit(1)
+    else:
+        print("No circular dependencies detected.")
+        sys.exit(0)
+
+if __name__ == "__main__":
+    main()
+

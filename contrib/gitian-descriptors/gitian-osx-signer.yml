@@ -1,40 +1,53 @@
 ---
-name: "bitcoin-dmg-signer"
-distro: "ubuntu"
+name: "bitnion-osx-signer"
+enable_cache: true
 suites:
-- "bionic"
+  - focal
 architectures:
-- "amd64"
+  - amd64
 packages:
-- "faketime"
+  - gpg
+  - zip
+  - unzip
+  - python3
+
+reference_datetime: "2025-01-01 00:00:00"
+
 remotes:
-- "url": "https://github.com/bitcoin-core/bitcoin-detached-sigs.git"
-  "dir": "signature"
-files:
-- "bitcoin-osx-unsigned.tar.gz"
+  - url: https://github.com/bitnion/bitnion.git
+    dir: bitnion
+
+files: []
+
 script: |
-  set -e -o pipefail
+  set -e
 
-  WRAP_DIR=$HOME/wrapped
-  mkdir -p ${WRAP_DIR}
-  export PATH="$PWD":$PATH
-  FAKETIME_PROGS="dmg genisoimage"
+  echo "[bitnion-osx-signer] Initializing macOS binary signing process for Bitnion."
 
-  # Create global faketime wrappers
-  for prog in ${FAKETIME_PROGS}; do
-    echo '#!/usr/bin/env bash' > ${WRAP_DIR}/${prog}
-    echo "REAL=\`which -a ${prog} | grep -v ${WRAP_DIR}/${prog} | head -1\`" >> ${WRAP_DIR}/${prog}
-    echo "export LD_PRELOAD='/usr/\$LIB/faketime/libfaketime.so.1'" >> ${WRAP_DIR}/${prog}
-    echo "export FAKETIME=\"${REFERENCE_DATETIME}\"" >> ${WRAP_DIR}/${prog}
-    echo "\$REAL \$@" >> $WRAP_DIR/${prog}
-    chmod +x ${WRAP_DIR}/${prog}
+  cd inputs/bitnion
+  version=$(cat version.txt)
+  echo "[bitnion-osx-signer] Signing binaries for Bitnion version: \$version"
+
+  mkdir -p signed
+  for file in bitnion-${version}-osx.dmg bitnion-${version}-osx.tar.gz; do
+    if [ -f "\$file" ]; then
+      echo "[bitnion-osx-signer] Signing \$file..."
+      gpg --output signed/\$file.sig --detach-sig \$file
+      echo "[bitnion-osx-signer] Signed: \$file.sig"
+    else
+      echo "[bitnion-osx-signer] Warning: File not found: \$file"
+    fi
   done
 
-  UNSIGNED=bitcoin-osx-unsigned.tar.gz
-  SIGNED=bitcoin-osx-signed.dmg
+  echo "[bitnion-osx-signer] Creating final archive..."
+  cd signed
+  zip ../bitnion-${version}-osx-signed.zip *
+  cd ..
 
-  tar -xf ${UNSIGNED}
-  OSX_VOLNAME="$(cat osx_volname)"
-  ./detached-sig-apply.sh ${UNSIGNED} signature/osx
-  ${WRAP_DIR}/genisoimage -no-cache-inodes -D -l -probe -V "${OSX_VOLNAME}" -no-pad -r -dir-mode 0755 -apple -o uncompressed.dmg signed-app
-  ${WRAP_DIR}/dmg dmg uncompressed.dmg ${OUTDIR}/${SIGNED}
+  mkdir -p \$OUTDIR
+  mv bitnion-${version}-osx-signed.zip \$OUTDIR/
+
+  echo "[bitnion-osx-signer] Signing complete. Final output:"
+  ls -lh \$OUTDIR/bitnion-${version}-osx-signed.zip
+
+  echo "[bitnion-osx-signer] macOS binaries successfully signed for Bitnion."

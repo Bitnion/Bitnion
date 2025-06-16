@@ -1,61 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\common.init.vcxproj" />
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{18430FEF-6B61-4C53-B396-718E02850F1B}</ProjectGuid>
+    <ProjectGuid>{12345678-ABCD-1234-EFAB-56789ABCDEF0}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>libleveldb</RootNamespace>
   </PropertyGroup>
-  <PropertyGroup Label="Configuration">
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="$(Configuration)|$(Platform)==Release|x64" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ItemGroup>
-    <ClCompile Include="..\..\src\leveldb\db\builder.cc" />
-    <ClCompile Include="..\..\src\leveldb\db\c.cc" />
-    <ClCompile Include="..\..\src\leveldb\db\dbformat.cc" />
     <ClCompile Include="..\..\src\leveldb\db\db_impl.cc" />
-    <ClCompile Include="..\..\src\leveldb\db\db_iter.cc" />
-    <ClCompile Include="..\..\src\leveldb\db\dumpfile.cc" />
-    <ClCompile Include="..\..\src\leveldb\db\filename.cc" />
+    <ClCompile Include="..\..\src\leveldb\db\version_set.cc" />
     <ClCompile Include="..\..\src\leveldb\db\log_reader.cc" />
     <ClCompile Include="..\..\src\leveldb\db\log_writer.cc" />
     <ClCompile Include="..\..\src\leveldb\db\memtable.cc" />
-    <ClCompile Include="..\..\src\leveldb\db\repair.cc" />
-    <ClCompile Include="..\..\src\leveldb\db\table_cache.cc" />
-    <ClCompile Include="..\..\src\leveldb\db\version_edit.cc" />
-    <ClCompile Include="..\..\src\leveldb\db\version_set.cc" />
     <ClCompile Include="..\..\src\leveldb\db\write_batch.cc" />
-    <ClCompile Include="..\..\src\leveldb\helpers\memenv\memenv.cc" />
-    <ClCompile Include="..\..\src\leveldb\table\block.cc" />
-    <ClCompile Include="..\..\src\leveldb\table\block_builder.cc" />
-    <ClCompile Include="..\..\src\leveldb\table\filter_block.cc" />
-    <ClCompile Include="..\..\src\leveldb\table\format.cc" />
-    <ClCompile Include="..\..\src\leveldb\table\iterator.cc" />
-    <ClCompile Include="..\..\src\leveldb\table\merger.cc" />
-    <ClCompile Include="..\..\src\leveldb\table\table.cc" />
-    <ClCompile Include="..\..\src\leveldb\table\table_builder.cc" />
-    <ClCompile Include="..\..\src\leveldb\table\two_level_iterator.cc" />
-    <ClCompile Include="..\..\src\leveldb\util\arena.cc" />
-    <ClCompile Include="..\..\src\leveldb\util\bloom.cc" />
-    <ClCompile Include="..\..\src\leveldb\util\cache.cc" />
-    <ClCompile Include="..\..\src\leveldb\util\coding.cc" />
-    <ClCompile Include="..\..\src\leveldb\util\comparator.cc" />
-    <ClCompile Include="..\..\src\leveldb\util\crc32c.cc" />
-    <ClCompile Include="..\..\src\leveldb\util\env.cc" />
-    <ClCompile Include="..\..\src\leveldb\util\env_windows.cc" />
-    <ClCompile Include="..\..\src\leveldb\util\filter_policy.cc" />
-    <ClCompile Include="..\..\src\leveldb\util\hash.cc" />
-    <ClCompile Include="..\..\src\leveldb\util\histogram.cc" />
+    <ClCompile Include="..\..\src\leveldb\util\env_posix.cc" />
     <ClCompile Include="..\..\src\leveldb\util\logging.cc" />
-    <ClCompile Include="..\..\src\leveldb\util\options.cc" />
-    <ClCompile Include="..\..\src\leveldb\util\status.cc" />
+    <ClCompile Include="..\..\src\leveldb\util\crc32c.cc" />
   </ItemGroup>
-  <ItemDefinitionGroup>
-     <ClCompile>
-       <PreprocessorDefinitions>HAVE_CRC32C=0;HAVE_SNAPPY=0;__STDC_LIMIT_MACROS;LEVELDB_IS_BIG_ENDIAN=0;_UNICODE;UNICODE;_CRT_NONSTDC_NO_DEPRECATE;LEVELDB_PLATFORM_WINDOWS;LEVELDB_ATOMIC_PRESENT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-       <DisableSpecificWarnings>4244;4267;4312;4722;</DisableSpecificWarnings>
-       <AdditionalIncludeDirectories>..\..\src\leveldb;..\..\src\leveldb\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-     </ClCompile>
-  </ItemDefinitionGroup>
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ItemGroup>
+    <ClInclude Include="..\..\src\leveldb\include\leveldb\db.h" />
+    <ClInclude Include="..\..\src\leveldb\include\leveldb\iterator.h" />
+    <ClInclude Include="..\..\src\leveldb\include\leveldb\options.h" />
+    <ClInclude Include="..\..\src\leveldb\include\leveldb\status.h" />
+    <ClInclude Include="..\..\src\leveldb\include\leveldb\write_batch.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <Import Project="..\common.vcxproj" />
 </Project>

@@ -1,20 +1,67 @@
-# Security Policy
+# Security Policy – Bitnion (BNO)
 
-## Supported Versions
+---
 
-See our website for versions of Bitcoin Core that are currently supported with
-security updates: https://bitcoincore.org/en/lifecycle/#schedule
+## 📌 Legal & Ethical Disclaimer
 
-## Reporting a Vulnerability
+Bitnion is a **non-commercial, open-source cryptocurrency project**.  
+It is developed independently by the Bitnion Core Team as a community-first alternative based on Bitcoin Core.
 
-To report security issues send an email to security@bitcoincore.org (not for support).
+**Bitnion is not an investment product.**  
+It is not a token offering, financial instrument, or digital asset with monetary guarantees.  
+Bitnion is freely distributed and is not intended for profit, speculation, or resale by its developers.
 
-The following keys may be used to communicate sensitive information to developers:
+---
 
-| Name | Fingerprint |
-|------|-------------|
-| Wladimir van der Laan | 71A3 B167 3540 5025 D447  E8F2 7481 0B01 2346 C9A6 |
-| Jonas Schnelli | 32EE 5C4C 3FA1 5CCA DB46  ABE5 29D4 BCB6 416F 53EC |
-| Pieter Wuille | 133E AC17 9436 F14A 5CF1  B794 860F EB80 4E66 9320 |
+## 🔐 Reporting Security Vulnerabilities
 
-You can import a key by running the following command with that individual’s fingerprint: `gpg --recv-keys "<fingerprint>"` Ensure that you put quotes around fingerprints containing spaces.
+We take security seriously.
+
+If you discover a security vulnerability or cryptographic weakness in Bitnion Core (software, protocol, or implementation), please **report it privately** to:
+
+📧 **bitnion@gmail.com**  
+Subject: `[SECURITY] Bitnion Vulnerability Report`
+
+Please do **not disclose publicly** until we have verified and patched the issue. Responsible disclosure helps protect the Bitnion ecosystem and users.
+
+---
+
+## ✅ Scope of Support
+
+We accept reports related to:
+
+- Consensus bugs
+- Chain reorg exploits
+- Remote code execution (RCE)
+- Wallet logic failures
+- DoS vulnerabilities
+- Key/address handling
+
+---
+
+## ❌ Out of Scope
+
+We will **not respond** to reports regarding:
+
+- Speculative value of Bitnion
+- Exchange prices or token listings
+- Tax/legal interpretations of users
+- General questions about mining or KYC
+
+For those matters, contact: **bitnion@gmail.com**
+
+---
+
+## 🤝 Developer Ethics
+
+- We will never sell, trade, or offer BNO coins commercially.
+- Developer premine (50,000 BNO) is reserved as recognition for voluntary work.
+- All decisions are made for security, fairness, and transparency.
+- Developer identities remain private for safety, with full respect for open-source ethics.
+
+---
+
+## 🔒 Thank You
+
+We appreciate the community’s continued support and vigilance in keeping Bitnion secure, fair, and decentralized.
+

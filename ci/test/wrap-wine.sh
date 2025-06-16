@@ -1,20 +1,35 @@
 #!/usr/bin/env bash
 #
-# Copyright (c) 2020 The Bitcoin Core developers
-# Distributed under the MIT software license, see the accompanying
-# file COPYING or http://www.opensource.org/licenses/mit-license.php.
+# Bitnion (BNO) – Wine Execution Wrapper for Windows Binaries
+#
+# This script wraps the execution of cross-compiled Bitnion Windows binaries
+# using Wine. It allows seamless testing of .exe builds generated via
+# MinGW (e.g., x86_64-w64-mingw32) on Unix-like systems.
+#
+# Adapted from Bitcoin Core infrastructure, rewritten for the Bitnion project.
+#
 
-export LC_ALL=C.UTF-8
+set -euo pipefail
+export LC_ALL=C
 
-for b_name in {"${BASE_OUTDIR}/bin"/*,src/secp256k1/*tests,src/univalue/{no_nul,test_json,unitester,object}}.exe; do
-    # shellcheck disable=SC2044
-    for b in $(find "${BASE_ROOT_DIR}" -executable -type f -name "$(basename $b_name)"); do
-      if (file "$b" | grep "Windows"); then
-        echo "Wrap $b ..."
-        mv "$b" "${b}_orig"
-        echo '#!/usr/bin/env bash' > "$b"
-        echo "wine64 \"${b}_orig\" \"\$@\"" >> "$b"
-        chmod +x "$b"
-      fi
-    done
-done
+if [[ $# -lt 1 ]]; then
+  echo "Usage: $0 <bitnion-binary.exe> [args...]"
+  echo "Example: ./wrap-wine.sh ./src/bitniond.exe --version"
+  exit 1
+fi
+
+TARGET_BINARY="$1"
+shift
+
+if [[ ! -f "${TARGET_BINARY}" ]]; then
+  echo "❌ Error: '${TARGET_BINARY}' not found."
+  exit 1
+fi
+
+if ! command -v wine >/dev/null 2>&1; then
+  echo "❌ Error: Wine is not installed or not in PATH."
+  exit 1
+fi
+
+echo "🍷 Executing Windows binary under Wine: ${TARGET_BINARY} $@"
+exec wine "${TARGET_BINARY}" "$@"

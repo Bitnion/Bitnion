@@ -1,16 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\common.init.vcxproj" />
-  <PropertyGroup Label="Globals">
-    <ProjectGuid>{868474FD-35F6-4400-8EED-30A33E7521D4}</ProjectGuid>
-  </PropertyGroup>
-  <PropertyGroup Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
-  </PropertyGroup>
-  <ItemGroup>
-@SOURCE_FILES@
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
   </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{4CFA1767-A2D4-4001-AB44-DA00A4C1EE72}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>libtest_util</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="$(Configuration)|$(Platform)==Release|x64" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ItemGroup>
+    <ClCompile Include="..\..\src\test\util\logging.cpp" />
+    <ClCompile Include="..\..\src\test\util\setup_common.cpp" />
+    <ClCompile Include="..\..\src\chainparams.cpp" />
+    <ClCompile Include="..\..\src\pow.cpp" />
+    <ClCompile Include="..\..\src\validation.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\test\util\logging.h" />
+    <ClInclude Include="..\..\src\test\util\setup_common.h" />
+    <ClInclude Include="..\..\src\chainparams.h" />
+    <ClInclude Include="..\..\src\pow.h" />
+    <ClInclude Include="..\..\src\validation.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <Import Project="..\common.vcxproj" />
 </Project>

@@ -1,5 +1,30 @@
-### QoS (Quality of service) ###
+# Bitnion Network QoS Testing Tools
 
-This is a Linux bash script that will set up tc to limit the outgoing bandwidth for connections to the Bitcoin network. It limits outbound TCP traffic with a source or destination port of 8333, but not if the destination IP is within a LAN.
+This directory provides utilities for testing **Quality of Service (QoS)** on the Bitnion P2P network. It is intended for developers, researchers, or maintainers who wish to analyze how the Bitnion node behaves under network stress, such as latency, bandwidth limits, or packet loss.
 
-This means one can have an always-on bitcoind instance running, and another local bitcoind/bitcoin-qt instance which connects to this node and receives blocks from it.
+---
+
+## 📦 Contents
+
+| File   | Description                                                  |
+|--------|--------------------------------------------------------------|
+| `tc.sh` | Shell script to emulate traffic shaping using `tc`         |
+| `README.md` | This documentation                                       |
+
+---
+
+## ⚙️ Requirements
+
+- Linux system with `tc` (traffic control) installed
+- Root permissions to modify network interfaces
+- An active Bitnion node (`bitniond`) running locally
+
+---
+
+## 🧪 Example Usage
+
+### Emulate 100ms Latency, 1Mbps Bandwidth, and 1% Packet Loss
+
+```bash
+sudo ./tc.sh eth0 100ms 1mbit 1%
+

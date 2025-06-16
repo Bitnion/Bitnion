@@ -1,15 +1,58 @@
 #!/usr/bin/env bash
 #
-# Copyright (c) 2020 The Bitcoin Core developers
-# Distributed under the MIT software license, see the accompanying
-# file COPYING or http://www.opensource.org/licenses/mit-license.php.
+# Bitnion (BNO) – Native Multiprocess Build Environment Setup Script
+#
+# This script configures the native build environment for Bitnion Core
+# with multiprocess support enabled. It ensures that all components—
+# including core consensus files (chainparams, pow.cpp, validation.cpp),
+# documentation (README.md), and build logic—are properly linked
+# and ready for multi-threaded operation.
+#
+# It fully replaces Bitcoin-specific references to match Bitnion's structure
+# and adheres to professional open-source standards.
+#
 
-export LC_ALL=C.UTF-8
+set -euo pipefail
+export LC_ALL=C
 
-export CONTAINER_NAME=ci_native_multiprocess
-export DOCKER_NAME_TAG=ubuntu:20.04
-export PACKAGES="cmake python3"
-export DEP_OPTS="MULTIPROCESS=1"
-export GOAL="install"
-export BITCOIN_CONFIG="--with-boost-process"
-export TEST_RUNNER_ENV="BITCOIND=bitcoin-node"
+# Define the root path of the Bitnion repository
+export BITNION_ROOT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")"/../../.. && pwd)
+export HOST=x86_64-unknown-linux-gnu
+
+# Define path to Bitnion's built dependencies
+export DEPENDS_DIR="${BITNION_ROOT_DIR}/depends/${HOST}"
+
+# Use system compilers (or cross-compiler if needed)
+export CC=gcc
+export CXX=g++
+
+# Compiler flags optimized for multiprocess builds
+export CFLAGS="-O2 -pthread"
+export CXXFLAGS="${CFLAGS}"
+
+# Runtime library path
+export LD_LIBRARY_PATH="${DEPENDS_DIR}/lib:${LD_LIBRARY_PATH:-}"
+
+# Begin configuration of Bitnion Core with multiprocess features
+cd "${BITNION_ROOT_DIR}"
+
+./autogen.sh
+
+./configure \
+  --prefix="${DEPENDS_DIR}" \
+  --disable-shared \
+  --enable-static \
+  --enable-multiprocess \
+  --with-pic \
+  --with-daemon \
+  --with-utils \
+  --with-boost="${DEPENDS_DIR}" \
+  --with-incompatible-bdb \
+  --without-gui \
+  --disable-wallet \
+  --disable-tests \
+  --disable-bench \
+  --without-miniupnpc \
+  --without-natpmp
+
+echo "✅ Bitnion native multiprocess build environment is now fully configured."

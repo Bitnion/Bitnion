@@ -1,21 +1,60 @@
-# Seeds
+# Bitnion Seed Nodes
 
-Utility to generate the seeds.txt list that is compiled into the client
-(see [src/chainparamsseeds.h](/src/chainparamsseeds.h) and other utilities in [contrib/seeds](/contrib/seeds)).
+This directory contains scripts and data files used for generating and maintaining DNS seed nodes for the Bitnion (BNO) network.
 
-Be sure to update `PATTERN_AGENT` in `makeseeds.py` to include the current version,
-and remove old versions as necessary (at a minimum when GetDesirableServiceFlags
-changes its default return value, as those are the services which seeds are added
-to addrman with).
+---
 
-The seeds compiled into the release are created from sipa's DNS seed data, like this:
+## 📁 Files in This Directory
 
-    curl -s http://bitcoin.sipa.be/seeds.txt.gz | gzip -dc > seeds_main.txt
-    python3 makeseeds.py < seeds_main.txt > nodes_main.txt
-    python3 generate-seeds.py . > ../../src/chainparamsseeds.h
+- `generate-seeds.py`  
+  Script to fetch, clean, and sort reachable nodes from known peer sources.
 
-## Dependencies
+- `makeseeds.py`  
+  Generates hardcoded seed list entries to be added into the `chainparams.cpp` source file.
 
-Ubuntu:
+- `nodes_main.txt`  
+  Raw list of reachable mainnet nodes discovered from Bitnion peer-to-peer connections.
 
-    sudo apt-get install python3-dnspython
+- `nodes_test.txt`  
+  List of nodes collected from testnet environments.
+
+- `suspicious_hosts.txt`  
+  Optional list to manually exclude malicious or suspicious IPs during seed generation.
+
+---
+
+## 🔄 How to Use
+
+1. **Gather Node Data**  
+   Update `nodes_main.txt` and `nodes_test.txt` by crawling the network using your own crawler or trusted peers.
+
+2. **Run Scripts**  
+   Use:
+   ```bash
+   python3 generate-seeds.py
+   python3 makeseeds.py
+
+This will generate sanitized, deduplicated node entries for DNS seeding.
+
+Update Source Code
+Insert the generated seed entries into src/chainparams.cpp, like:
+vSeeds.emplace_back("seed.bitnion.org");
+Test Network Consistency
+Make sure seed entries are live, properly ported (default 9333), and adhere to Bitnion’s consensus rules.
+
+Related Source Files
+src/chainparams.cpp
+DNS seed entries (vSeeds) are defined here for the Bitnion main network.
+
+src/pow.cpp
+Defines block subsidy halving and Proof-of-Work constraints for BNO.
+
+src/validation.cpp
+Contains core block/transaction validation logic on the Bitnion network.
+
+README.md
+High-level overview of Bitnion’s mission, technical specs, and distribution model.
+Disclaimer
+This directory is part of the Bitnion (BNO) project and is not compatible with Bitcoin or any other fork. All naming conventions, scripts, and seed formats are tailored specifically for the Bitnion ecosystem.
+
+For seed submissions or contributions, please contact: bitnion@gmail.com
