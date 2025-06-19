@@ -1,156 +1,114 @@
-<<<<<<< HEAD
-# Bitnion (BNO) – A Fair and Foundational Cryptocurrency
+# 🌐 Bitnion (BNO)
 
-[![MIT License](https://img.shields.io/badge/license-MIT-green.svg)](https://opensource.org/licenses/MIT)
-![Status](https://img.shields.io/badge/status-active-brightgreen)
-[![Verified Commits](https://img.shields.io/badge/commits-verified-brightgreen?logo=github)](https://github.com/bitnion/bitnion/commits/main)
-=======
-# Bitnion (BNO)
+**Bitnion** is a decentralized, Bitcoin-inspired cryptocurrency protocol with a hard-capped supply of **15 million BNO**, transparent crowdsale, and zero inflation.
 
-A fair and foundational cryptocurrency built upon the proven architecture of Bitcoin Core.
->>>>>>> 8adb4a0ff307c96fc122d2f27e3b5f638bdd5100
+Bitnion is scheduled to launch on **10 November 2025** with open-source governance and a fully transparent emission curve designed to end by the year 2130.
 
 ---
 
-## 🪙 What is Bitnion?
+## 🔢 Token Summary
 
-<<<<<<< HEAD
-**Bitnion (BNO)** is a Bitcoin-based, community-driven cryptocurrency built with the goal of fairness, transparency, and long-term sustainability.
-
-Bitnion maintains technical quality on par with Bitcoin Core (90–98%) and introduces responsible, inclusive distribution without commercial intent.
-
----
-
-## 🔍 Key Parameters (as defined in `chainparams.cpp`)
-
-- **Name**: Bitnion
-- **Symbol**: BNO
-- **Smallest Unit**: `nion` (1 BNO = 100,000,000 nion)
-- **Max Supply**: 15,000,000 BNO
-- **Premine**: 1,000,000 BNO allocated in the genesis block
-- **Launch Year**: 2025
-- **Final Mining Year**: ~2137 (halving every 205,000 blocks)
-- **Developer**: The Bitnion Core Team (anonymous)
-- **Network ID**: `"bitnion"`
-- **License**: MIT (Open-source, non-commercial)
-- **Quality**: 100% parity in consensus design with Bitcoin Core
+- **Token Name**: Bitnion
+- **Ticker**: BNO
+- **Max Supply**: 15,000,000 BNO (fixed)
+- **Premine (Genesis Block)**: 1,000,000 BNO
+  - 950,000 BNO allocated for public contributors
+  - 50,000 BNO reserved for infrastructure and development
+- **Mining Supply**: 14,000,000 BNO (via PoW)
+- **Consensus**: Proof-of-Work (SHA256D)
+- **Block Time**: 10 minutes
+- **Halving Interval**: 210,000 blocks (~4 years)
+- **Reward Starts At**: 33.333333 BNO per block
+- **Mining Ends**: ~Year 2130
 
 ---
 
-## 📦 Project Highlights
+## 💸 Crowdsale Overview
 
-- Open-source codebase based on Bitcoin Core.
-- Genesis block includes 1M BNO premine to support early adopters and miners.
-- Proof-of-Work system identical to Bitcoin, with 10-minute block times.
-- No token sale, no ICO, and no direct listing offering.
-- Community-managed development and future evolution.
+- **Crowdsale Supply**: 950,000 BNO
+- **Price**: 1 BTC = 2,000 BNO
+- **Max BTC Accepted**: 475 BTC
+- **BTC Contribution Address**:
 
----
+bc1qudjqs32yc9ggae9e38pa36t4rymrgwdldu869k
 
-## 🧾 Premine Distribution & Community Policy
 
-> See [docs/premine_policy.md](docs/premine_policy.md) for full details.
+### 📩 How to Contribute
 
-Summary:
+1. Send BTC to the official address above.
+2. Email **bitnion@gmail.com** with:
+ - Your **Bitcoin sender address**
+ - The **transaction ID (TXID)**
+ - BTC amount and expected BNO
+3. After launch, send your **Bitnion wallet address** to receive BNO.
 
-- 950,000 BNO are distributed for free to early verified wallet holders (KYC) and miners.
-- 1 BNO for each verified wallet holder via **bitnion@gmail.com**
-- +1 BNO bonus for miners who reach 5 mined BNO (once per address).
-- Supporters may voluntarily support Bitnion developers via donation platforms like Tremendous.
-  - $10–20 USD → thank-you gift of 5 BNO
-  - $30–40 USD → thank-you gift of 10 BNO
-- All gifts are symbolic and end once the central reserve drops below 50,000 BNO.
-- 50,000 BNO are reserved for the anonymous developer team.
-
-**Bitnion is not a financial product, security, or investment offering.**
+> ⛓️ All allocations will be recorded on-chain and reflected in the genesis block.
 
 ---
 
-## 📈 On Exchange Listings
+## 💼 Use of Crowdsale Funds
 
-- If Bitnion is one day listed by major exchanges, the team will remain neutral and supportive.
-- If the community (holders, miners, supporters) pushes for a listing, the team will support those initiatives transparently.
-=======
-**Bitnion (BNO)** is an open-source, community-focused cryptocurrency project designed for fairness, simplicity, and long-term sustainability. It follows the decentralized philosophy of Bitcoin but introduces an ethical and transparent launch process, without ICOs or venture funding.
+BTC raised from the crowdsale will be used transparently and exclusively for:
 
----
+- Domain and website infrastructure
+- DNS seed node hosting
+- Public explorer and chain tools
 
-## 🔍 Key Highlights
-
-- Based on Bitcoin Core 0.21+ codebase
-- Maximum supply: **15,000,000 BNO**
-- Premine: **1,000,000 BNO** (transparent, ethical distribution)
-- Block time: **10 minutes**
-- Halving: every 205,000 blocks (~4 years)
-- Written in **C++**, with deterministic builds and MIT license
+> Bitnion is a community-first project. No funds will be used for private gain or speculation.
 
 ---
 
-## 📦 Repository Structure
+## ⛏️ Emission Schedule
 
+Bitnion uses a Bitcoin-style halving model with a tailored emission curve to reach 14 million mined BNO by ~2130.
 
-src/ # Core source code (C++)
-doc/ # Documentation
-contrib/ # Tools and scripts (hooks, verify-commits, seed generators)
-test/ # Unit and functional tests
-README.md # Project overview
-LICENSE # MIT License
-
-
----
-
-## 📜 License
-
-This project is licensed under the [MIT License](LICENSE).
-
-MIT © 2025 Bitnion Core Team
-
+| Era | Block Reward | Coins Mined     | Duration     |
+|-----|---------------|------------------|--------------|
+| 0   | 33.333333 BNO | 7,000,000 BNO    | 2025–2029    |
+| 1   | 16.666666 BNO | 3,500,000 BNO    | 2029–2033    |
+| 2   | 8.333333 BNO  | 1,750,000 BNO    | 2033–2037    |
+| 3   | 4.166666 BNO  | 875,000 BNO      | 2037–2041    |
+| ... | ...           | ...              | ...          |
+| N   | ≈ 0 BNO       | → 14M total      | Until ~2130  |
 
 ---
 
->>>>>>> 8adb4a0ff307c96fc122d2f27e3b5f638bdd5100
+## 📁 Project Structure
+
+| File/Folder             | Description                                      |
+|--------------------------|--------------------------------------------------|
+| `src/chainparams.cpp`    | Network rules, reward logic, genesis block       |
+| `src/validation.cpp`     | Consensus and block verification                 |
+| `src/pow.cpp`            | Mining difficulty and proof-of-work              |
+| `docs/tokenomics.md`     | Full emission schedule and supply breakdown      |
+| `docs/premine_policy.md` | Details of the 1M BNO genesis allocation         |
+| `docs/crowdsale_instructions.md` | Contribution process                    |
+| `docs/crowdsale_log.md`  | Public log of verified contributions             |
+| `DISCLAIMER.md`          | Legal and regulatory disclaimer                  |
+| `COPYING`                | MIT License                                      |
 
 ---
 
-## 📧 Contact
+## 🛡️ Legal Notice
 
-<<<<<<< HEAD
-- Email: **bitnion@gmail.com**
-- Twitter/X (planned)
-- Telegram/Discord (planned)
+Bitnion is not an investment vehicle. It provides no promise of future value or profit. Participation in the crowdsale is voluntary and subject to applicable local laws.
 
----
-
-## 🔐 License
-
-This project is licensed under the MIT license.  
-See [COPYING](COPYING) or visit: [https://opensource.org/licenses/MIT](https://opensource.org/licenses/MIT)
+See [`DISCLAIMER.md`](./DISCLAIMER.md) for complete legal terms.
 
 ---
 
-## 🤝 Contribution
+## 📦 License
 
-Pull requests are welcome. Contributions must align with the mission of maintaining:
-- Security and consensus compatibility with Bitcoin
-- Open access, transparency, and decentralization
+Bitnion is released under the [MIT License](./COPYING). Contributions, forks, and independent deployments are welcome.
 
 ---
 
-## ⚠️ Disclaimer
+## 🚀 Launch Details
 
-Bitnion is not intended for speculative investment or financial gain.  
-It is a community experiment inspired by Bitcoin, with ethical distribution and zero commercialization.  
-Participation is voluntary.
+- **Genesis Block**: Includes 1,000,000 BNO premine
+- **Crowdsale**: Closes when all 950,000 BNO are sold
+- **Mining Begins**: From block #1, using SHA256D
+- **Supply Cap**: 15,000,000 BNO forever
 
----
+> Bitnion is built to last. Decentralized by design, fixed in supply, and free to audit by anyone.
 
----
-## 🖼️ Bitnion Logo
-
-![Bitnion Logo](assets/logos/Bitnion_BNO.png)
-=======
-- Email: [bitnionproject@gmail.com](mailto:bitnionproject@gmail.com)
-- GitHub: [github.com/bitnion/bitnion](https://github.com/bitnion/bitnion)
-
-> Contributions are welcome. Please open issues or pull requests.
->>>>>>> 8adb4a0ff307c96fc122d2f27e3b5f638bdd5100
