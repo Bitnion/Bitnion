@@ -38,31 +38,31 @@ class CMainParams : public CChainParams {
 public:
     CMainParams() {
         strNetworkID = "main";
+        nDefaultPort = 10333;
 
         consensus.nSubsidyHalvingInterval = 210000;
         consensus.BIP34Height = 1;
         consensus.BIP65Height = 1;
         consensus.BIP66Height = 1;
         consensus.powLimit = uint256S("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
-        consensus.nPowTargetTimespan = 14 * 24 * 60 * 60; // 2 weeks
-        consensus.nPowTargetSpacing = 10 * 60; // 10 minutes
+        consensus.nPowTargetTimespan = 14 * 24 * 60 * 60;
+        consensus.nPowTargetSpacing = 10 * 60;
         consensus.fPowAllowMinDifficultyBlocks = false;
         consensus.fPowNoRetargeting = false;
-        consensus.nRuleChangeActivationThreshold = 1916; 
+        consensus.nRuleChangeActivationThreshold = 1916;
         consensus.nMinerConfirmationWindow = 2016;
         consensus.nMinimumChainWork = uint256S("00");
         consensus.defaultAssumeValid = uint256S("00");
 
-        // Genesis block
         const std::string pszTimestamp = "Bitnion genesis block created on 10 Nov 2025";
-        genesis = CreateGenesisBlock(1762713600, 2083236893, 0x1d00ffff, 1, 100000000000000, pszTimestamp); // 1,000,000 BNO in satoshis
+        genesis = CreateGenesisBlock(1762713600, 2083236893, 0x1d00ffff, 1, 100000000000000, pszTimestamp);
         consensus.hashGenesisBlock = genesis.GetHash();
         assert(consensus.hashGenesisBlock == uint256S("0xGENESISHASH"));
         assert(genesis.hashMerkleRoot == uint256S("0xMERKLEROOTHASH"));
 
         vSeeds.emplace_back("seed.bitnion.org");
 
-        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,0); // BNO address prefix
+        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,0);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,5);
         base58Prefixes[SECRET_KEY]     = std::vector<unsigned char>(1,128);
         base58Prefixes[EXT_PUBLIC_KEY] = {0x04, 0x88, 0xB2, 0x1E};
@@ -87,6 +87,11 @@ public:
         };
     }
 };
+
+// Optional: define testnet, regtest, signet ports here
+int GetTestnetPort() { return 18339; }
+int GetRegtestPort() { return 18449; }
+int GetSignetPort()  { return 38339; }
 
 static std::unique_ptr<CChainParams> globalChainParams;
 
