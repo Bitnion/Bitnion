@@ -19,3 +19,4 @@
 !src/init.cpp
 !src/validation.cpp
 !COPYING
+!src/net.cpp
