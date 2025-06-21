@@ -1,67 +1,82 @@
-# Security Policy – Bitnion (BNO)
+# 🔐 Bitnion Security Policy
+
+Bitnion (BNO) is an open-source, Bitcoin-inspired cryptocurrency focused on transparency, decentralization, and long-term immutability. The following policy outlines the principles and practices used to protect the protocol and its participants.
 
 ---
 
-## 📌 Legal & Ethical Disclaimer
+## 🛡️ Key Security Principles
 
-Bitnion is a **non-commercial, open-source cryptocurrency project**.  
-It is developed independently by the Bitnion Core Team as a community-first alternative based on Bitcoin Core.
-
-**Bitnion is not an investment product.**  
-It is not a token offering, financial instrument, or digital asset with monetary guarantees.  
-Bitnion is freely distributed and is not intended for profit, speculation, or resale by its developers.
-
----
-
-## 🔐 Reporting Security Vulnerabilities
-
-We take security seriously.
-
-If you discover a security vulnerability or cryptographic weakness in Bitnion Core (software, protocol, or implementation), please **report it privately** to:
-
-📧 **bitnion@gmail.com**  
-Subject: `[SECURITY] Bitnion Vulnerability Report`
-
-Please do **not disclose publicly** until we have verified and patched the issue. Responsible disclosure helps protect the Bitnion ecosystem and users.
+- **Immutable Supply**: The total supply is permanently capped at 15,000,000 BNO with no future minting or inflation.
+- **Open Genesis**: All premine and crowdsale allocations are verifiably embedded in the genesis block.
+- **Decentralized Mining**: No coins are premined beyond the genesis; mining starts at block #1 using SHA256D.
+- **No Private Keys Custody**: Bitnion never stores or manages user keys. You control your wallet.
+- **Auditable Code**: Full source code is open-source under MIT License (see `COPYING`).
 
 ---
 
-## ✅ Scope of Support
+## 🧾 Crowdsale Safety Guidelines
 
-We accept reports related to:
+Bitnion uses a transparent, manual crowdsale process prior to mainnet launch:
 
-- Consensus bugs
-- Chain reorg exploits
-- Remote code execution (RCE)
-- Wallet logic failures
-- DoS vulnerabilities
-- Key/address handling
+1. Send BTC to the **public contribution address**:
 
----
+bc1qudjqs32yc9ggae9e38pa36t4rymrgwdldu869k
 
-## ❌ Out of Scope
+2. Email `bitnion@gmail.com` with:
+- Your sender BTC address
+- Transaction ID (TXID)
+- Expected BNO
+3. After launch, email your **Bitnion wallet address** to receive BNO.
 
-We will **not respond** to reports regarding:
-
-- Speculative value of Bitnion
-- Exchange prices or token listings
-- Tax/legal interpretations of users
-- General questions about mining or KYC
-
-For those matters, contact: **bitnion@gmail.com**
+📌 All contributions are non-refundable and must follow the instructions in `docs/crowdsale_instructions.md`.
 
 ---
 
-## 🤝 Developer Ethics
+## ⚠️ Responsible Disclosure
 
-- We will never sell, trade, or offer BNO coins commercially.
-- Developer premine (50,000 BNO) is reserved as recognition for voluntary work.
-- All decisions are made for security, fairness, and transparency.
-- Developer identities remain private for safety, with full respect for open-source ethics.
+If you discover a critical vulnerability in the Bitnion codebase (e.g. consensus bug, double-spend exploit, infinite inflation), **please report it privately** to:
+
+**📧 bitnion@gmail.com**
+
+You may optionally encrypt with a public PGP key (not yet published).
 
 ---
 
-## 🔒 Thank You
+## 📂 Verifiable Files & Security Integrity
 
-We appreciate the community’s continued support and vigilance in keeping Bitnion secure, fair, and decentralized.
+- `src/chainparams.cpp` — Network rules and genesis integrity
+- `src/validation.cpp` — Reward and block consensus
+- `src/pow.cpp` — Difficulty and PoW logic
+- `docs/tokenomics.md` — Transparent fixed supply
+- `docs/crowdsale_instructions.md` — Manual contribution process
+- `DISLAIMER.md` — Legal limits and voluntary terms
+
+All files are permanently part of the project and tracked at:
+> [https://github.com/Bitnion/Bitnion](https://github.com/Bitnion/Bitnion)
+
+---
+
+## 🚫 What Bitnion Does Not Do
+
+- ❌ No staking, airdrops, or inflation
+- ❌ No custodial wallets or account creation
+- ❌ No login or KYC
+- ❌ No centralized control or override key
+
+---
+
+## ✅ Summary
+
+| Topic                     | Status    |
+|---------------------------|-----------|
+| Public Auditability       | ✅ Yes     |
+| Manual Contribution       | ✅ Verified via email |
+| Decentralized Consensus   | ✅ SHA256D |
+| Open Source Code          | ✅ MIT License |
+| Inflation / Minting       | ❌ Never   |
+| Bug Bounty Program        | 📧 Email-based |
+
+---
+
+*Bitnion is designed for public security, not speculation. Participate responsibly and review the source code before use.*
 
