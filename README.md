@@ -112,3 +112,28 @@ Bitnion is released under the [MIT License](./COPYING). Contributions, forks, an
 
 > Bitnion is built to last. Decentralized by design, fixed in supply, and free to audit by anyone.
 
+
+---
+
+## 🔍 Comparison: Bitnion vs Bitcoin
+
+| **Category**               | **Bitcoin**                                  | **Bitnion**                                  |
+|----------------------------|-----------------------------------------------|-----------------------------------------------|
+| **Mainnet Address Prefix** | `1`, `3`, `bc1`                               | `B`, `bno1` *(custom Bech32)*                 |
+| **Testnet Address Prefix** | `m`, `n`, `tb1`                               | `T`, `tbno1` *(Bitnion testnet)*              |
+| **Signet Address Prefix**  | `tb1`                                         | `sbno1` *(planned if Signet is enabled)*      |
+| **Regtest Prefix**         | Same as testnet (local only)                 | Same as Bitnion testnet (local only)          |
+| **Mainnet Port**           | `8333`                                        | `10333`                                       |
+| **Testnet Port**           | `18333`                                       | `18339`                                       |
+| **Regtest Port**           | `18444`                                       | `18449`                                       |
+| **Signet Port**            | `38333`                                       | `38339` *(optional if enabled)*               |
+| **Mainnet Explorer**       | `mempool.space`, `blockchair.com`            | `bitnionscan.org` *(planned)*                 |
+| **Testnet Explorer**       | `blockstream.info/testnet`                   | `bitnion.local/testnet` *(internal devnet)*   |
+| **Signet Explorer**        | `explorer.bc-2.jp`                           | `bitnion.local/signet` *(planned)*            |
+| **Regtest Explorer**       | Not applicable (local dev only)              | Not applicable (local only)                   |
+| **Max Supply**             | 21,000,000 BTC                                | 15,000,000 BNO *(fixed cap)*                  |
+| **Premine**                | None                                          | 1,000,000 BNO premine at block 0              |
+| **Genesis Timestamp**      | January 3, 2009                               | November 10, 2025                             |
+| **Launch Type**            | Organic, open-source                         | 100% Proof-of-Work, transparent premine       |
+| **License**                | MIT                                           | MIT                                            |
+
