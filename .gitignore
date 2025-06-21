@@ -18,3 +18,4 @@
 !src/chainparams.cpp
 !src/init.cpp
 !src/validation.cpp
+!COPYING
