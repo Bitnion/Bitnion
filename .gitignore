@@ -13,10 +13,4 @@
 !docs/tokenomics.md
 !CONTRIBUTING.md
 !whitepaper.md
-!src/miner.cpp
-!src/pow.cpp
-!src/chainparams.cpp
-!src/init.cpp
-!src/validation.cpp
 !COPYING
-!src/net.cpp
